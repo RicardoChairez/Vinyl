@@ -58,34 +58,45 @@ struct MediaView: View {
                                             .foregroundStyle(.secondary)
                                             .font(.headline)
                                         Spacer()
-                                        Menu{
-                                            if isInCollection() {
-                                                Button("Remove from collection", role: .destructive) {
-                                                    removeFromCollection()
+                                        ZStack {
+                                            Menu{
+                                                if isInCollection() {
+                                                    Button("Remove from Collection", role: .destructive) {
+                                                        removeFromCollection()
+                                                    }
                                                 }
-                                            }
-                                            else {
-                                                Button("Add to Collection") {
-                                                    save(isInCollection: true)
+                                                else {
+                                                    Button("Add to Collection") {
+                                                        save(isInCollection: true)
+                                                    }
                                                 }
-                                            }
-                                            
-                                            if !isSaved() {
-                                                Button("Add to Wishlist") {
-                                                    save(isInCollection: false)
+                                                
+                                                if !isSaved() {
+                                                    Button("Add to Wishlist") {
+                                                        save(isInCollection: false)
+                                                    }
                                                 }
-                                            }
-                                            else if !isInCollection() {
-                                                Button("Remove from wishlist", role: .destructive) {
-                                                    removeFromCollection()
+                                                else if !isInCollection() {
+                                                    Button("Remove from Wishlist", role: .destructive) {
+                                                        removeFromCollection()
+                                                    }
                                                 }
-                                            }
-                                            
-                                        } label: {
-                                            Image(systemName: "ellipsis.circle")
+                                                
+                                            } label: {
+                                                Button(action: {}, label: {
+                                                    Image(systemName: "ellipsis")
+                                                        .resizable()
+                                                        .scaledToFit()
+                                                        .frame(width: 15, height: 15)
+                                                })
+                                                .buttonStyle(.borderedProminent)
+                                                .buttonBorderShape(.circle)
                                                 .disabled(vm.media.release == nil)
-                                                .scaledToFit()
+                                                .foregroundStyle(.notPrimary)
+                                                .tint(.offPrimary)
+                                            }
                                         }
+                                        .frame(height: 0)
                                     }
                                     
                                     Text(vm.media.release?.title ?? vm.media.mediaPreview.title)
@@ -142,20 +153,15 @@ struct MediaView: View {
                                         Text(notes)
                                             .lineLimit(vm.descriptionLines)
                                             .foregroundStyle(.secondary)
-                                            .overlay {
-                                                Group {
-                                                    if vm.descriptionLines != nil {
-                                                        Text("MORE")
-                                                    }
-                                                    else {
-                                                        Text("LESS")
-                                                    }
-                                                }
-                                                .fontWeight(.semibold)
-                                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
-                                            }
                                         Group {
+                                            if vm.descriptionLines != nil {
+                                                Text("MORE")
+                                            }
+                                            else {
+                                                Text("LESS")
+                                            }
                                         }
+                                        .foregroundStyle(.primary)
                                         .fontWeight(.semibold)
                                         .frame(maxWidth: .infinity, alignment: .trailing)
                                         
@@ -202,19 +208,23 @@ struct MediaView: View {
                         
                         if !vm.otherVersions.isEmpty {
                             VStack(alignment: .leading){
-                                Text("OTHER RELEASES")
-                                    .font(.footnote)
-                                    .foregroundStyle(.secondary)
-                                    .fontWeight(.semibold)
-                                    .padding([.top, .leading])
-                                
-                                ForEach($vm.otherVersions) { $mediaPreview in
-                                    NavigationLink(value: mediaPreview) {
-                                        MediaPreviewView(mediaPreview: $mediaPreview)
-                                            .padding(.leading)
+                                Group {
+                                    Text("OTHER RELEASES")
+                                        .font(.footnote)
+                                        .foregroundStyle(.secondary)
+                                        .fontWeight(.semibold)
+                                        .padding(.top)
+                                    Divider()
+                                    
+                                    ForEach($vm.otherVersions) { $mediaPreview in
+                                        NavigationLink(value: mediaPreview) {
+                                            MediaPreviewView(mediaPreview: $mediaPreview)
+//                                                .padding(.leading)
+                                        }
+                                        //                            .task({await vm.downloadImage(mediaPreview)})
                                     }
-                                    //                            .task({await vm.downloadImage(mediaPreview)})
                                 }
+                                .padding(.leading)
                             }
                             .background(.thinMaterial)
                             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))

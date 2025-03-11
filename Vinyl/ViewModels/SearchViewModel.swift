@@ -19,7 +19,7 @@ class SearchViewModel: ObservableObject {
     
     @Published var medias: [MediaPreview] = []
     var searchText = "to pimp a butterfly"
-    var isShowingScanner = false
+    @Published var isShowingScanner = false
     @Published var vmState: vmState = .notSearching
     
     func search(query: String, completion: @escaping (NetworkError?) -> ()) async {
