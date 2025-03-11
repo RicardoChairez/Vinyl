@@ -1,0 +1,33 @@
+{
+  "originHash" : "15394b0e41d9907ce4f56029960fefe8734b9448df788793fc85293ac028a379",
+  "pins" : [
+    {
+      "identity" : "codescanner",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/twostraws/CodeScanner.git",
+      "state" : {
+        "revision" : "5e886430238944c7200fc9e10dbf2d9550dba865",
+        "version" : "2.5.2"
+      }
+    },
+    {
+      "identity" : "dominantcolor",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/indragiek/DominantColor",
+      "state" : {
+        "revision" : "aadc3d48c1f7f8abc7d03561d42c19188b1d4625",
+        "version" : "0.2.2"
+      }
+    },
+    {
+      "identity" : "drops",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/omaralbeik/Drops.git",
+      "state" : {
+        "revision" : "a183ee6f79f21c940092a19c2cba756555422371",
+        "version" : "1.7.0"
+      }
+    }
+  ],
+  "version" : 3
+}
