@@ -127,5 +127,14 @@ class MediaViewModel: ObservableObject {
             }
         }
     }
+    
+    func toggleDescription() {
+        if descriptionLines == nil {
+            descriptionLines = 3
+        }
+        else {
+            descriptionLines = nil
+        }
+    }
 }
 

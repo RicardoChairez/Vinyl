@@ -142,33 +142,48 @@ struct MediaView: View {
                                         Text(notes)
                                             .lineLimit(vm.descriptionLines)
                                             .foregroundStyle(.secondary)
-                                        if vm.descriptionLines != nil {
-                                            Button("MORE"){ vm.descriptionLines = nil}
-                                                .foregroundStyle(.primary)
+                                            .overlay {
+                                                Group {
+                                                    if vm.descriptionLines != nil {
+                                                        Text("MORE")
+                                                    }
+                                                    else {
+                                                        Text("LESS")
+                                                    }
+                                                }
                                                 .fontWeight(.semibold)
+                                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                                            }
+                                        Group {
                                         }
-                                        else {
-                                            Button("LESS"){ vm.descriptionLines = 3}
-                                                .foregroundStyle(.primary)
-                                                .fontWeight(.semibold)
-                                        }
+                                        .fontWeight(.semibold)
+                                        .frame(maxWidth: .infinity, alignment: .trailing)
+                                        
                                     }
+                                    .onTapGesture(perform: {
+                                        vm.toggleDescription()
+                                    })
                                     .font(.footnote)
                                     .padding(.bottom, 5)
                                 }
                                 
                                 if let tracklist = vm.media.release?.tracklist {
                                     VStack(alignment: .leading){
+                                        Text("TRACKLIST")
+                                            .font(.footnote)
+                                            .fontWeight(.semibold)
+                                            .foregroundStyle(.secondary)
                                         ForEach(tracklist, id: \.title) { track in
                                             Divider()
                                             HStack(spacing: 0){
                                                 Text(track.position ?? "")
-                                                    .frame(width: 25, alignment: .leading)
+                                                    .frame(width: 30, alignment: .leading)
                                                     .foregroundStyle(.secondary)
                                                 Text(track.title ?? "")
                                                 Spacer()
                                                 Text(track.duration ?? "")
                                             }
+                                            .padding(.vertical, 5)
                                             .font(.subheadline)
                                             .lineLimit(1)
                                             
@@ -187,8 +202,8 @@ struct MediaView: View {
                         
                         if !vm.otherVersions.isEmpty {
                             VStack(alignment: .leading){
-                                Text("Other releases")
-                                    .font(.headline)
+                                Text("OTHER RELEASES")
+                                    .font(.footnote)
                                     .foregroundStyle(.secondary)
                                     .fontWeight(.semibold)
                                     .padding([.top, .leading])
