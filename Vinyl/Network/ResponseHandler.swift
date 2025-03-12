@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftSoup
 
 class ResponseHandler {
     
@@ -20,4 +21,26 @@ class ResponseHandler {
         }
     }
     
+    func parseHTMLForPrice(data: Data, completion: (Result<Double, NetworkError>) -> Void) {
+        if let html = String(data: data, encoding: .utf8) {
+            do {
+                let document = try SwiftSoup.parse(html)
+                let pricesElements = try document.getElementsByClass("s-item__price")
+                let formatter = NumberFormatter()
+                formatter.numberStyle = .currency
+                
+                let prices: [Double] = try pricesElements.compactMap({formatter.number(from: try $0.text())?.doubleValue})
+                if prices.isEmpty {
+                    completion(.failure(.invalidData))
+                    return
+                }
+                let average: Double = Double(prices.reduce(0, +) / Double(prices.count))
+                completion(.success(average))
+                
+            }
+            catch {
+                completion(.failure(.parsing(error)))
+            }
+        }
+    }
 }

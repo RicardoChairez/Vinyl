@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		451B67A32D75224D0070C45B /* DominantColor in Frameworks */ = {isa = PBXBuildFile; productRef = 451B67A22D75224D0070C45B /* DominantColor */; };
+		451E12EC2D8214B600FFA4DE /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = 451E12EB2D8214B600FFA4DE /* SwiftSoup */; };
 		45B24FCE2D791AD20039D77B /* CodeScanner in Frameworks */ = {isa = PBXBuildFile; productRef = 45B24FCD2D791AD20039D77B /* CodeScanner */; };
 		45B24FD32D7A7A820039D77B /* Drops in Frameworks */ = {isa = PBXBuildFile; productRef = 45B24FD22D7A7A820039D77B /* Drops */; };
 /* End PBXBuildFile section */
@@ -59,6 +60,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				45B24FD32D7A7A820039D77B /* Drops in Frameworks */,
+				451E12EC2D8214B600FFA4DE /* SwiftSoup in Frameworks */,
 				45B24FCE2D791AD20039D77B /* CodeScanner in Frameworks */,
 				451B67A32D75224D0070C45B /* DominantColor in Frameworks */,
 			);
@@ -132,6 +134,7 @@
 				451B67A22D75224D0070C45B /* DominantColor */,
 				45B24FCD2D791AD20039D77B /* CodeScanner */,
 				45B24FD22D7A7A820039D77B /* Drops */,
+				451E12EB2D8214B600FFA4DE /* SwiftSoup */,
 			);
 			productName = Vinyl;
 			productReference = 45B6B34B2D7106C500E62B2E /* Vinyl.app */;
@@ -219,6 +222,7 @@
 				451B559A2D7520C6009EBA32 /* XCRemoteSwiftPackageReference "DominantColor" */,
 				45B24FCC2D791AB60039D77B /* XCRemoteSwiftPackageReference "CodeScanner" */,
 				45B24FD12D7A7A720039D77B /* XCRemoteSwiftPackageReference "Drops" */,
+				451E12EA2D82133300FFA4DE /* XCRemoteSwiftPackageReference "SwiftSoup" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 45B6B34C2D7106C500E62B2E /* Products */;
@@ -597,6 +601,14 @@
 				minimumVersion = 0.2.2;
 			};
 		};
+		451E12EA2D82133300FFA4DE /* XCRemoteSwiftPackageReference "SwiftSoup" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/scinfu/SwiftSoup.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.8.6;
+			};
+		};
 		45B24FCC2D791AB60039D77B /* XCRemoteSwiftPackageReference "CodeScanner" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/twostraws/CodeScanner.git";
@@ -620,6 +632,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 451B559A2D7520C6009EBA32 /* XCRemoteSwiftPackageReference "DominantColor" */;
 			productName = DominantColor;
+		};
+		451E12EB2D8214B600FFA4DE /* SwiftSoup */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 451E12EA2D82133300FFA4DE /* XCRemoteSwiftPackageReference "SwiftSoup" */;
+			productName = SwiftSoup;
 		};
 		45B24FCD2D791AD20039D77B /* CodeScanner */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -15,17 +15,12 @@ class MediaViewModel: ObservableObject {
         self.media = Media(mediaPreview: mediaPreview, coverImageData: coverImageData, isInCollection: isInCollection)
     }
     
-    init(mediaModel: Media, coverImageData: Data?) {
+    init(mediaModel: Media) {
         self.media = mediaModel
-        self.coverImageData = coverImageData
-//        Task {
-//            await self.getOtherVersions(query: "\(media.release!.title) \(media.release!.artists.first?.name ?? "")")
-//        }
     }
     
-    var media: Media
+    @Published var media: Media
     @Published var otherVersions: [MediaPreview] = []
-    var coverImageData: Data?
     @Published var descriptionLines: Int? = 3
     
     func getRelease() async {
@@ -39,7 +34,7 @@ class MediaViewModel: ObservableObject {
                     await self.getOtherVersions(query: "\(self.media.release!.title) \(self.media.release!.artists.first?.name ?? "")")
                 }
             case .failure(let error):
-                print(error)
+                    (error)
                 let drop = Drop(title: "Error", subtitle: error.localizedDescription, subtitleNumberOfLines: 2)
                 Drops.show(drop)
 //                completion(error)
@@ -84,7 +79,7 @@ class MediaViewModel: ObservableObject {
         guard let index = otherVersions.firstIndex(where: {$0 == mediaPreview}), otherVersions[index].thumbImageData == nil, mediaPreview.thumbImageURL != nil else {
             return
         }
-        NetworkManager.shared.downloadData(url: mediaPreview.thumbImageURL) { result in
+        NetworkManager.shared.fetchData(url: mediaPreview.thumbImageURL) { result in
             switch result {
             case .success(let imageData):
                 Task {
@@ -99,26 +94,11 @@ class MediaViewModel: ObservableObject {
         }
     }
     
-    
-    func getSuggestedPrice() async {
-        let endpoint = "https://api.discogs.com/marketplace/price_suggestions/\(media.mediaPreview.id)&\(Constants.api.key)"
-        let url = URL(string: endpoint)
-        let headers = ["Authorization": "Discogs key=ZUZzobEyTNvOTqHyJqWA, secret=URAFfBKBvzRlfReyStjLCqyXyQSbFQjc#"]
-        NetworkManager.shared.request(modelType: Release.self, url: url, headers: headers){ result in
-            switch result {
-            case .success(let release):
-                self.media.release = release
-            case .failure(let error):
-                print(error)
-            }
-        }
-    }
-    
     func downloadImage() async {
         guard media.mediaPreview.cover_image.contains(".jpeg"), let coverImageURL = URL(string: media.mediaPreview.cover_image) else {
             return
         }
-        NetworkManager.shared.downloadData(url: coverImageURL) { result in
+        NetworkManager.shared.fetchData(url: coverImageURL) { result in
             switch result {
             case .success(let imageData):
                 self.media.coverImageData = imageData
@@ -134,6 +114,24 @@ class MediaViewModel: ObservableObject {
         }
         else {
             descriptionLines = nil
+        }
+    }
+    
+    func getEstimatedPrice() async {
+        let query: String
+        if media.mediaPreview.catno.isEmpty {
+            query = "\(media.mediaPreview.title) \((media.mediaPreview.year ?? ""))"
+        }
+        else {
+            query = media.mediaPreview.catno
+        }
+        NetworkManager.shared.getAveragePrice(query: query) { result in
+            switch result {
+            case .success(let price):
+                self.media.estimatedPrice = price
+            case .failure(let error):
+                print(error)
+            }
         }
     }
 }

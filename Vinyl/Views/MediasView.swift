@@ -24,6 +24,7 @@ struct MediasView: View {
     @Environment(\.modelContext) private var modelContext
     @Query var collection: [Media]
     @State var searchText = ""
+    @State var accountIsPresented = false
     let isInCollection: Bool
     let title: String
     var filteredCollection: [Media] {
@@ -101,15 +102,18 @@ struct MediasView: View {
                 }
                 .padding(.horizontal, 20)
             }
+            .sheet(isPresented: $accountIsPresented, content: {
+                Text("HI")
+            })
             .searchable(text: $searchText, prompt: "Album, Format, Genre, Artist")
             .navigationDestination(for: Media.self) { media in
-                MediaView(vm: MediaViewModel(mediaModel: media, coverImageData: media.coverImageData))
+                MediaView(vm: MediaViewModel(mediaModel: media))
             }
             .navigationTitle(title)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button() {
-                        
+                        accountIsPresented = true
                     } label: {
                         Image(systemName: "person.crop.circle")
                     }

@@ -15,6 +15,7 @@ struct MediaView: View {
     @Query var collection: [Media]
     @State var colors: [Color] = []
     @StateObject var vm: MediaViewModel
+    @State var viewDidLoad = false
     
     var body: some View {
         GeometryReader { proxy in
@@ -36,14 +37,13 @@ struct MediaView: View {
                                         .resizable()
                                         .scaledToFit()
                                         .task {
-                                            print(vm.media.mediaPreview.cover_image)
                                             withAnimation(.easeIn) {
                                                 getColorsFromImage(uiImage)
                                             }
                                         }
                                 }
                                 else {
-                                    Color.secondary
+                                    Color.offPrimary
                                 }
                             }
                             .cornerRadius(4)
@@ -103,19 +103,28 @@ struct MediaView: View {
                                         .font(.title)
                                         .fontWeight(.bold)
                                 }
-                                
-                                VStack(alignment: .leading) {
-                                    Text(vm.media.mediaPreview.country ?? "")
-                                    HStack {
-                                        Text(vm.media.release?.released_formatted ?? "")
-                                        Text(vm.media.release?.label ?? "")
+                                HStack {
+                                    VStack(alignment: .leading) {
+                                        Text(vm.media.mediaPreview.country ?? "")
+                                        HStack {
+                                            Text(vm.media.release?.released_formatted ?? "")
+                                            Text(vm.media.release?.label ?? "")
+                                        }
+                                        Text("CATNO: \(vm.media.mediaPreview.catno)")
+                                    }
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                                    
+                                    Spacer()
+                                    
+                                    if let estimatedPrice = vm.media.estimatedPrice {
+                                        Text("$" + String(format: "%.2f", estimatedPrice))
+                                            .fontWeight(.semibold)
+                                        
                                     }
                                 }
-                                .frame(width: .infinity)
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
                                 .padding(.bottom, 5)
-                                    
+                                
                                 ScrollView(.horizontal, showsIndicators: false) {
                                     HStack {
                                         ForEach(vm.media.mediaPreview.format, id: \.self) { format in
@@ -270,14 +279,24 @@ struct MediaView: View {
             })
             .modelContainer(for: Media.self)
         }
-        .task {
-            updateMedia()
-            if let release = vm.media.release, vm.otherVersions.isEmpty{
-                await vm.getOtherVersions(query: "\(release.title) \(release.artists.first?.name ?? "")")
-            }
-            else {
-                await vm.downloadImage()
-                await vm.getRelease()
+        .onAppear {
+            if !viewDidLoad {
+                Task {
+                    syncMediaWithStoredModel()
+                    await vm.getEstimatedPrice()
+                    if let release = vm.media.release {
+                        if vm.otherVersions.isEmpty {
+                                await vm.getOtherVersions(query: "\(release.title) \(release.artists.first?.name ?? "")")
+                        }
+                    }
+                    else {
+                            await vm.getRelease()
+                    }
+                    if vm.media.coverImageData == nil {
+                            await vm.downloadImage()
+                    }
+                    self.viewDidLoad = true
+                }
             }
         }
     }
@@ -287,7 +306,7 @@ struct MediaView: View {
             Drops.hideAll()
             vm.media.isInCollection = isInCollection
             modelContext.insert(vm.media)
-            updateMedia()
+            syncMediaWithStoredModel()
             try modelContext.save()
             let drop = Drop(title: "Successfully added", titleNumberOfLines: 1, subtitle: nil, subtitleNumberOfLines: 0, icon: UIImage(systemName: "checkmark"))
             Drops.show(drop)
@@ -334,7 +353,7 @@ struct MediaView: View {
         return false
     }
     
-    func updateMedia() {
+    func syncMediaWithStoredModel() {
         if let media = collection.first(where: {$0.mediaPreview.id == vm.media.mediaPreview.id}) {
             vm.media = media
         }

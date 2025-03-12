@@ -62,7 +62,7 @@ class SearchViewModel: ObservableObject {
         guard let index = medias.firstIndex(where: {$0 == media}), medias[index].thumbImageData == nil, media.thumbImageURL != nil else {
             return
         }
-        NetworkManager.shared.downloadData(url: media.thumbImageURL) { result in
+        NetworkManager.shared.fetchData(url: media.thumbImageURL) { result in
             switch result {
             case .success(let imageData):
                 Task {

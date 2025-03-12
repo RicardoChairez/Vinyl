@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftSoup
 
 typealias ResultHandler<T> = (Result<T, NetworkError>) -> Void
 
@@ -49,8 +50,11 @@ final class NetworkManager {
         }
     }
     
-    func downloadData(url: URL?, completion: @escaping (Result<Data, NetworkError>) -> Void){
-        guard let url = url else {return}
+    func fetchData(url: URL?, completion: @escaping (Result<Data, NetworkError>) -> Void) {
+        guard let url = url else {
+            completion(.failure(.invalidURL))
+            return
+        }
         let urlRequest = URLRequest(url: url)
         networkHandler.requestDataAPI(urlRequest: urlRequest) { result in
             switch result {
@@ -61,6 +65,27 @@ final class NetworkManager {
             }
         }
     }
+    
+    func getAveragePrice(query: String, completion: @escaping (Result<Double, NetworkError>) -> Void) {
+        let endpoint = URL(string: "https://www.ebay.com/sch/11233/i.html?_nkw=\(query)&_from=R40&LH_Sold=1&LH_Complete=1")
+        fetchData(url: endpoint) { result in
+            switch result {
+            case .success(let data):
+                self.responseHandler.parseHTMLForPrice(data: data) { result in
+                    switch result {
+                    case .success(let price):
+                        completion(.success(price))
+                    case .failure(let error):
+                        completion(.failure(error))
+                    }
+                    
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
 }
 
 enum NetworkError: Error {
@@ -69,6 +94,7 @@ enum NetworkError: Error {
     case invalidData
     case network(Error?)
     case decoding(Error?)
+    case parsing(Error?)
     case serverError
     case connnection
 }
