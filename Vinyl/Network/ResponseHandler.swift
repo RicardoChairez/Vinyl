@@ -28,7 +28,6 @@ class ResponseHandler {
                 let pricesElements = try document.getElementsByClass("s-item__price")
                 let formatter = NumberFormatter()
                 formatter.numberStyle = .currency
-                
                 let prices: [Double] = try pricesElements.compactMap({formatter.number(from: try $0.text())?.doubleValue})
                 if prices.isEmpty {
                     completion(.failure(.invalidData))

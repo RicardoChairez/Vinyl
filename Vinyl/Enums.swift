@@ -13,11 +13,24 @@ enum CollectionType {
 }
 
 enum Sort: String, Equatable, CaseIterable {
-    case added = "Added"
+    case addedRecent = "Added (Recent)"
+    case addedOldest = "Added (Oldest)"
+    case valueHigh = "Value (Highest)"
+    case valueLow = "Value (Lowest)"
     case title = "Title"
     case artist = "Artist"
     case year = "Year"
     case label = "Label"
     
     var localizedName: LocalizedStringKey { LocalizedStringKey(rawValue) }
+}
+
+enum CustomError: Error {
+    case notInCollection
+}
+
+enum Ownership: String, Codable {
+    case owned = "OWNED"
+    case unowned = "UNOWNED"
+    case wanted = "WANTED"
 }

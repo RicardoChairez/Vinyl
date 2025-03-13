@@ -10,18 +10,25 @@ import SwiftData
 
 @Model
 class Media {
-    init(mediaPreview: MediaPreview, coverImageData: Data?, isInCollection: Bool) {
+//    init(mediaPreview: MediaPreview, coverImageData: Data?, ownership: Ownership) {
+//        self.mediaPreview = mediaPreview
+//        self.coverImageData = coverImageData
+//        self.dateAdded = .now
+//        self.ownership = ownership
+//    }
+    
+    init(mediaPreview: MediaPreview) {
         self.mediaPreview = mediaPreview
-        self.coverImageData = coverImageData
+        self.coverImageData = nil
         self.dateAdded = .now
-        self.isInCollection = isInCollection
+        self.ownership = .unowned
     }
     
     var dateAdded: Date
     var mediaPreview: MediaPreview
     var release: Release?
-    var estimatedPrice: Double?
-    var isInCollection: Bool
+    var estimatedValue: Double?
+    var ownership: Ownership
+    var folder: String?
     @Attribute(.externalStorage) var coverImageData: Data?
-    
 }

@@ -20,11 +20,11 @@ struct ContentView: View {
             
             Tab("Collection", systemImage: "music.note.list", value: TabScreen
 .collection){
-                MediasView(isInCollection: true)
+                MediasView(ownership: .owned)
             }
             Tab("Wishlist", systemImage: "list.bullet", value: TabScreen
 .collection){
-                MediasView(isInCollection: false)
+                MediasView(ownership: .wanted)
             }
             Tab("Search", systemImage: "magnifyingglass", value: TabScreen
 .collection){

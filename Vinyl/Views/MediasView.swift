@@ -10,10 +10,10 @@ import SwiftData
 import Drops
 
 struct MediasView: View {
-    init(searchText: String = "", isInCollection: Bool) {
+    init(searchText: String = "", ownership: Ownership) {
         self.searchText = searchText
-        self.isInCollection = isInCollection
-        if isInCollection {
+        self.ownership = ownership
+        if ownership == .owned {
             self.title = "Collection"
         }
         else {
@@ -25,10 +25,10 @@ struct MediasView: View {
     @Query var collection: [Media]
     @State var searchText = ""
     @State var accountIsPresented = false
-    let isInCollection: Bool
+    let ownership: Ownership
     let title: String
     var filteredCollection: [Media] {
-        var filteredCollection = collection.filter({$0.isInCollection == self.isInCollection})
+        var filteredCollection = collection.filter({$0.ownership == self.ownership})
         filteredCollection = sortCollection(collection: filteredCollection)
         if searchText.isEmpty {
             return filteredCollection
@@ -44,8 +44,9 @@ struct MediasView: View {
         }
         return filteredCollection
     }
-    @State var selectedSort: Sort = .added
-    
+    @State var sort: Sort = .addedRecent
+    @State var albumCount: Int = 0
+    @State var collectionValue: Double = 0.0
     
     let columns = [
         GridItem(.adaptive(minimum: 100), spacing: 10),
@@ -55,6 +56,17 @@ struct MediasView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
+                HStack {
+                    Text("\(albumCount) Albums ")
+                    Spacer()
+                    if ownership == .owned {
+                        Text("Estimated Value: $" + String(format: "%.2f", collectionValue))
+                    }
+                }
+                .padding(.horizontal)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                
                 LazyVGrid(columns: columns, spacing: 20) {
                     ForEach(filteredCollection) { media in
                         NavigationLink(value: media) {
@@ -85,7 +97,7 @@ struct MediasView: View {
                         }
                         .tint(.primary)
                         .contextMenu {
-                            if !isInCollection {
+                            if ownership != .owned {
                                 Button("Add to collection") {
                                     withAnimation {
                                         addToCollection(media: media)
@@ -100,10 +112,13 @@ struct MediasView: View {
                         }
                     }
                 }
-                .padding(.horizontal, 20)
+                .padding(.horizontal)
+            }
+            .onAppear {
+                updateCollection()
             }
             .sheet(isPresented: $accountIsPresented, content: {
-                Text("HI")
+                AccountView()
             })
             .searchable(text: $searchText, prompt: "Album, Format, Genre, Artist")
             .navigationDestination(for: Media.self) { media in
@@ -120,7 +135,7 @@ struct MediasView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
-                        Picker(selection: $selectedSort) {
+                        Picker(selection: $sort) {
                             ForEach(Sort.allCases, id: \.self) { sort in
                                 Text(sort.localizedName)
                                     .tag(sort)
@@ -141,6 +156,8 @@ struct MediasView: View {
         do {
             modelContext.delete(media)
             try modelContext.save()
+            media.ownership = .unowned
+            updateCollection()
             let drop = Drop(title: "Successfully removed", icon: UIImage(systemName: "checkmark"))
             Drops.show(drop)
         }
@@ -154,9 +171,10 @@ struct MediasView: View {
     func addToCollection(media: Media) {
         do {
             media.dateAdded = .now
-            media.isInCollection = true
+            media.ownership = .owned
             modelContext.insert(media)
             try modelContext.save()
+            updateCollection()
             let drop = Drop(title: "Successfully added", titleNumberOfLines: 1, subtitle: nil, subtitleNumberOfLines: 0, icon: UIImage(systemName: "checkmark"))
             Drops.show(drop)
         }
@@ -168,18 +186,29 @@ struct MediasView: View {
     }
     
     func sortCollection(collection: [Media]) -> [Media] {
-        switch selectedSort {
+        switch sort {
         case .label:
             return collection.sorted(by: {($0.release?.labels.first?.name ?? "") < ($1.release!.labels.first?.name ?? "")})
         case .artist:
             return collection.sorted(by: {($0.release?.artists.first?.name ?? "") < ($1.release!.artists.first?.name ?? "")})
         case .title:
             return collection.sorted(by: {$0.release!.title < $1.release!.title})
-        case .added:
+        case .addedRecent:
             return collection.sorted(by: {$0.dateAdded > $1.dateAdded})
+        case .addedOldest:
+            return collection.sorted(by: {$0.dateAdded < $1.dateAdded})
         case .year:
             return collection.sorted(by: {$0.mediaPreview.year ?? "" < $1.mediaPreview.year ?? ""})
+        case .valueHigh:
+            return collection.sorted(by: {$0.estimatedValue ?? -1.0 > $1.estimatedValue ?? -2.0})
+        case .valueLow:
+            return collection.sorted(by: {$0.estimatedValue ?? -2.0 < $1.estimatedValue ?? -1.0})
         }
+    }
+    
+    func updateCollection() {
+        albumCount = collection.filter({$0.ownership == ownership}).count
+        collectionValue = collection.filter({$0.ownership == .owned}).map({$0.estimatedValue ?? 20.0}).reduce(0.0, +)
     }
 }
 

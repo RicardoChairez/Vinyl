@@ -36,7 +36,7 @@ struct SearchView: View {
             .padding(.leading)
             .padding(.vertical)
             .navigationDestination(for: MediaPreview.self) { mediaPreview in
-                MediaView(vm: MediaViewModel(mediaPreview: mediaPreview, coverImageData: nil, isInCollection: false))
+                MediaView(vm: MediaViewModel(mediaPreview: mediaPreview))
             }
             .navigationTitle("Search")
             .searchable(text: $vm.searchText)

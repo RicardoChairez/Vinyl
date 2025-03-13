@@ -51,7 +51,7 @@ struct MediaView: View {
                             .clipped()
                         
                         VStack {
-                            VStack( alignment: .leading ){
+                            VStack( alignment: .leading, spacing: 5 ){
                                 VStack(alignment: .leading, spacing: 0) {
                                     HStack {
                                         Text(vm.media.release?.artists.first?.name ?? "")
@@ -60,25 +60,24 @@ struct MediaView: View {
                                         Spacer()
                                         ZStack {
                                             Menu{
-                                                if isInCollection() {
+                                                switch vm.media.ownership {
+                                                case .owned:
                                                     Button("Remove from Collection", role: .destructive) {
-                                                        removeFromCollection()
+                                                        removeFromSave()
                                                     }
-                                                }
-                                                else {
+                                                case .unowned:
                                                     Button("Add to Collection") {
-                                                        save(isInCollection: true)
+                                                        save(ownership: .owned)
                                                     }
-                                                }
-                                                
-                                                if !isSaved() {
                                                     Button("Add to Wishlist") {
-                                                        save(isInCollection: false)
+                                                        save(ownership: .wanted)
                                                     }
-                                                }
-                                                else if !isInCollection() {
+                                                case .wanted:
+                                                    Button("Add to Collection") {
+                                                        save(ownership: .owned)
+                                                    }
                                                     Button("Remove from Wishlist", role: .destructive) {
-                                                        removeFromCollection()
+                                                        removeFromSave()
                                                     }
                                                 }
                                                 
@@ -87,12 +86,11 @@ struct MediaView: View {
                                                     Image(systemName: "ellipsis")
                                                         .resizable()
                                                         .scaledToFit()
-                                                        .frame(width: 15, height: 15)
+                                                        .frame(width: 12, height: 12)
                                                 })
                                                 .buttonStyle(.borderedProminent)
                                                 .buttonBorderShape(.circle)
                                                 .disabled(vm.media.release == nil)
-                                                .foregroundStyle(.notPrimary)
                                                 .tint(.offPrimary)
                                             }
                                         }
@@ -103,8 +101,32 @@ struct MediaView: View {
                                         .font(.title)
                                         .fontWeight(.bold)
                                 }
+                            
+                                
                                 HStack {
                                     VStack(alignment: .leading) {
+                                        Group {
+                                            if vm.media.ownership == .owned {
+                                                Text(Ownership.owned.rawValue)
+                                                    .foregroundStyle(.blue)
+                                                
+                                            }
+                                            else if vm.media.ownership == .wanted {
+                                                Text(Ownership.wanted.rawValue)
+                                                    .foregroundStyle(.yellow)
+                                            }
+                                            else {
+                                                Text(Ownership.unowned.rawValue)
+                                                    .foregroundStyle(.red)
+                                            }
+                                        }
+                                        .font(.caption2)
+                                        .fontWeight(.semibold)
+                                        .padding(4)
+                                        .background(.notPrimary)
+                                        .clipShape(.capsule)
+                                        .padding(.bottom, 5)
+                                        
                                         Text(vm.media.mediaPreview.country ?? "")
                                         HStack {
                                             Text(vm.media.release?.released_formatted ?? "")
@@ -117,13 +139,25 @@ struct MediaView: View {
                                     
                                     Spacer()
                                     
-                                    if let estimatedPrice = vm.media.estimatedPrice {
-                                        Text("$" + String(format: "%.2f", estimatedPrice))
-                                            .fontWeight(.semibold)
-                                        
+                                    VStack {
+                                        Text("ESTIMATED VALUE")
+                                            .foregroundStyle(.secondary)
+                                            .font(.caption2)
+                                        Group {
+                                            if let estimatedPrice = vm.media.estimatedValue {
+                                                Text("$" + String(format: "%.2f", estimatedPrice) + " ")
+                                            }
+                                            else {
+                                                Text("$??.??")
+                                            }
+                                        }
+//                                        Spacer()
                                     }
+                                    .fontWeight(.semibold)
                                 }
                                 .padding(.bottom, 5)
+                                
+                                
                                 
                                 ScrollView(.horizontal, showsIndicators: false) {
                                     HStack {
@@ -241,7 +275,7 @@ struct MediaView: View {
                         }
                     }
                     .navigationDestination(for: MediaPreview.self) { mediaPreview in
-                        MediaView(vm: MediaViewModel(mediaPreview: mediaPreview, coverImageData: nil, isInCollection: false))
+                        MediaView(vm: MediaViewModel(mediaPreview: mediaPreview))
                     }
                     .background(.clear)
                 }
@@ -249,25 +283,24 @@ struct MediaView: View {
             .toolbar(content: {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu{
-                        if isInCollection() {
-                            Button("Remove from collection", role: .destructive) {
-                                removeFromCollection()
+                        switch vm.media.ownership {
+                        case .owned:
+                            Button("Remove from Collection", role: .destructive) {
+                                removeFromSave()
                             }
-                        }
-                        else {
+                        case .unowned:
                             Button("Add to Collection") {
-                                save(isInCollection: true)
+                                save(ownership: .owned)
                             }
-                        }
-                        
-                        if !isSaved() {
                             Button("Add to Wishlist") {
-                                save(isInCollection: false)
+                                save(ownership: .wanted)
                             }
-                        }
-                        else if !isInCollection() {
-                            Button("Remove from wishlist", role: .destructive) {
-                                removeFromCollection()
+                        case .wanted:
+                            Button("Add to Collection") {
+                                save(ownership: .owned)
+                            }
+                            Button("Remove from Wishlist", role: .destructive) {
+                                removeFromSave()
                             }
                         }
                         
@@ -301,18 +334,19 @@ struct MediaView: View {
         }
     }
     
-    func save(isInCollection: Bool) {
+    func save(ownership: Ownership) {
+        let previousOwnership = vm.media.ownership
         do {
             Drops.hideAll()
-            vm.media.isInCollection = isInCollection
+            vm.media.ownership = ownership
             modelContext.insert(vm.media)
-            syncMediaWithStoredModel()
             try modelContext.save()
+            syncMediaWithStoredModel()
             let drop = Drop(title: "Successfully added", titleNumberOfLines: 1, subtitle: nil, subtitleNumberOfLines: 0, icon: UIImage(systemName: "checkmark"))
             Drops.show(drop)
         }
         catch {
-            vm.media.isInCollection = false
+            vm.media.ownership = previousOwnership
             print(error.localizedDescription)
             let drop = Drop(title: Constants.drop.addToCollectionFailure, titleNumberOfLines: 1, subtitle: error.localizedDescription, subtitleNumberOfLines: 2, icon: UIImage(systemName: "xmark"))
             Drops.show(drop)
@@ -320,12 +354,14 @@ struct MediaView: View {
     }
     
     
-    func removeFromCollection() {
+    func removeFromSave() {
         do {
-            if let media = collection.first(where: {$0.mediaPreview.id == vm.media.mediaPreview.id}) {
-                modelContext.delete(media)
+            guard let media = collection.first(where: {$0.mediaPreview.id == vm.media.mediaPreview.id}) else {
+                throw CustomError.notInCollection
             }
+            modelContext.delete(media)
             try modelContext.save()
+            media.ownership = .unowned
             let drop = Drop(title: "Successfully removed", icon: UIImage(systemName: "checkmark"))
             Drops.show(drop)
         }
@@ -344,13 +380,6 @@ struct MediaView: View {
     
     func isSaved() -> Bool{
         return collection.contains(where: {$0.mediaPreview.id == vm.media.mediaPreview.id})
-    }
-    
-    func isInCollection() -> Bool {
-        if let media = collection.first(where: {$0.mediaPreview.id == vm.media.mediaPreview.id}) {
-            return media.isInCollection
-        }
-        return false
     }
     
     func syncMediaWithStoredModel() {

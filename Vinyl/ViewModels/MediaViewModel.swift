@@ -11,8 +11,8 @@ import Drops
 
 @MainActor
 class MediaViewModel: ObservableObject {
-    init(mediaPreview: MediaPreview, coverImageData: Data?, isInCollection: Bool) {
-        self.media = Media(mediaPreview: mediaPreview, coverImageData: coverImageData, isInCollection: isInCollection)
+    init(mediaPreview: MediaPreview) {
+        self.media = Media(mediaPreview: mediaPreview)
     }
     
     init(mediaModel: Media) {
@@ -128,7 +128,11 @@ class MediaViewModel: ObservableObject {
         NetworkManager.shared.getAveragePrice(query: query) { result in
             switch result {
             case .success(let price):
-                self.media.estimatedPrice = price
+                Task {
+                    await MainActor.run {
+                        self.media.estimatedValue = price
+                    }
+                }
             case .failure(let error):
                 print(error)
             }
