@@ -17,6 +17,7 @@ struct MediaView: View {
     @StateObject var vm: MediaViewModel
     @State var viewDidLoad = false
     @State var editIsPresented = false
+    @State var removeIsConfirming = false
     
     var body: some View {
         GeometryReader { proxy in
@@ -251,6 +252,14 @@ struct MediaView: View {
                     .background(.clear)
                 }
             }
+            .confirmationDialog("Are you sure you want to remove this?", isPresented: $removeIsConfirming){
+                Button("Remove", role: .destructive) {
+                    removeFromSave()
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("Are you sure you want to remove?")
+            }
             .sheet(isPresented: $editIsPresented, content: {
                 EditMediaView(media: $vm.media)
             })
@@ -268,7 +277,7 @@ struct MediaView: View {
                                 }
                             }
                             Button(role: .destructive) {
-                                removeFromSave()
+                                removeIsConfirming = true
                             } label: {
                                 HStack {
                                     Text("Remove from Collection")
@@ -303,7 +312,7 @@ struct MediaView: View {
                                 }
                             }
                             Button(role: .destructive) {
-                                removeFromSave()
+                                removeIsConfirming = true
                             } label: {
                                 HStack {
                                     Text("Remove from Wantlist")
