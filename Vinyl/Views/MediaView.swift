@@ -59,49 +59,7 @@ struct MediaView: View {
                                             .foregroundStyle(.secondary)
                                             .font(.headline)
                                         Spacer()
-                                        ZStack {
-                                            Menu{
-                                                switch vm.media.ownership {
-                                                case .owned:
-                                                    Button("Edit") {
-                                                        editIsPresented = true
-                                                    }
-                                                    Button("Remove from Collection", role: .destructive) {
-                                                        removeFromSave()
-                                                    }
-                                                case .unowned:
-                                                    Button("Add to Collection") {
-                                                        save(ownership: .owned)
-                                                    }
-                                                    Button("Add to Wishlist") {
-                                                        save(ownership: .wanted)
-                                                    }
-                                                case .wanted:
-                                                    Button("Add to Collection") {
-                                                        save(ownership: .owned)
-                                                    }
-                                                    Button("Remove from Wishlist", role: .destructive) {
-                                                        removeFromSave()
-                                                    }
-                                                }
-                                                
-                                            } label: {
-                                                Button(action: {}, label: {
-                                                    Image(systemName: "ellipsis")
-                                                        .resizable()
-                                                        .scaledToFit()
-                                                        .frame(width: 12, height: 12)
-                                                })
-                                                .foregroundStyle(Color.primary)
-                                                .buttonStyle(.borderedProminent)
-                                                .buttonBorderShape(.circle)
-                                                .disabled(vm.media.release == nil)
-                                                .tint(.offPrimary)
-                                            }
-                                        }
-                                        .frame(height: 0)
                                     }
-                                    
                                     Text(vm.media.release?.title ?? vm.media.mediaPreview.title)
                                         .font(.title)
                                         .fontWeight(.bold)
@@ -120,9 +78,10 @@ struct MediaView: View {
                                                         }
                                                         else if vm.media.ownership == .wanted {
                                                             Text(Ownership.wanted.rawValue)
-                                                                .foregroundStyle(.yellow)
+//                                                                .foregroundStyle(.yellow)
                                                         }
                                                     }
+                                                    .foregroundStyle(.primary)
                                                     .font(.caption2)
                                                     .fontWeight(.semibold)
                                                     .padding(4)
@@ -131,6 +90,7 @@ struct MediaView: View {
                                                     
                                                     if vm.media.ownership == .owned {
                                                         Text("on \(vm.media.dateFormatted)")
+                                                            .font(.caption2)
                                                     }
                                                 }
                                                 .padding(.bottom, 5)
@@ -144,15 +104,14 @@ struct MediaView: View {
                                         }
                                         Text("CATNO: \(vm.media.mediaPreview.catno)")
                                     }
-                                    .font(.caption2)
+                                    .font(.footnote)
                                     .foregroundStyle(.secondary)
                                     
                                     Spacer()
-                                    
                                     VStack {
-                                        Text("VALUE")
-                                            .foregroundStyle(.secondary)
-                                            .font(.caption2)
+                                            Text("VALUE")
+                                                .foregroundStyle(.secondary)
+                                                .font(.caption2)
                                         Group {
                                             if let estimatedPrice = vm.media.estimatedValue {
                                                 Text("$" + String(format: "%.2f", estimatedPrice) + " ")
@@ -161,9 +120,10 @@ struct MediaView: View {
                                                 Text("?")
                                             }
                                         }
-                                        Spacer()
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
+                                            Spacer()
                                     }
-                                    .fontWeight(.semibold)
                                 }
                                 .padding(.bottom, 5)
                                 
@@ -183,6 +143,7 @@ struct MediaView: View {
                                             
                                         }
                                     }
+                                    .padding(.bottom, 5)
                                 }
 
                                 ScrollView(.horizontal, showsIndicators: false) {
@@ -222,7 +183,7 @@ struct MediaView: View {
                                     .onTapGesture(perform: {
                                         vm.toggleDescription()
                                     })
-                                    .font(.footnote)
+                                    .font(.caption2)
                                     .padding(.bottom, 5)
                                 }
                                 
@@ -298,28 +259,74 @@ struct MediaView: View {
                     Menu{
                         switch vm.media.ownership {
                         case .owned:
-                            Button("Remove from Collection", role: .destructive) {
+                            Button{
+                                editIsPresented = true
+                            } label: {
+                                HStack {
+                                    Text("Edit")
+                                    Image(systemName: "pencil")
+                                }
+                            }
+                            Button(role: .destructive) {
                                 removeFromSave()
+                            } label: {
+                                HStack {
+                                    Text("Remove from Collection")
+                                    Image(systemName: "trash")
+                                }
                             }
+                            
                         case .unowned:
-                            Button("Add to Collection") {
+                            Button {
                                 save(ownership: .owned)
+                            } label: {
+                                HStack {
+                                    Text("Add to Collection")
+                                    Image(systemName: "plus")
+                                }
                             }
-                            Button("Add to Wishlist") {
+                            Button {
                                 save(ownership: .wanted)
+                            } label: {
+                                HStack {
+                                    Text("Add to Wantlist")
+                                    Image(systemName: "plus")
+                                }
                             }
                         case .wanted:
-                            Button("Add to Collection") {
+                            Button {
                                 save(ownership: .owned)
+                            } label: {
+                                HStack {
+                                    Text("Add to Collection")
+                                    Image(systemName: "plus")
+                                }
                             }
-                            Button("Remove from Wishlist", role: .destructive) {
+                            Button(role: .destructive) {
                                 removeFromSave()
+                            } label: {
+                                HStack {
+                                    Text("Remove from Wantlist")
+                                    Image(systemName: "trash")
+                                }
                             }
                         }
                         
                     } label: {
-                        Image(systemName: "ellipsis")
-                            .disabled(vm.media.release == nil)
+                        Button {
+                            
+                        } label: {
+                            Image(systemName: "ellipsis")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 12, height: 12)
+                        }
+                        .foregroundStyle(Color.primary)
+                        .buttonStyle(.borderedProminent)
+                        .buttonBorderShape(.circle)
+                        .disabled(vm.media.release == nil)
+                        .tint(.offPrimary)
+                        
                     }
                 }
             })
