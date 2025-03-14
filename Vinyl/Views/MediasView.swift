@@ -200,15 +200,15 @@ struct MediasView: View {
         case .year:
             return collection.sorted(by: {$0.mediaPreview.year ?? "" < $1.mediaPreview.year ?? ""})
         case .valueHigh:
-            return collection.sorted(by: {$0.estimatedValue ?? -1.0 > $1.estimatedValue ?? -2.0})
+            return collection.sorted(by: {$0.value ?? -1.0 > $1.value ?? -2.0})
         case .valueLow:
-            return collection.sorted(by: {$0.estimatedValue ?? -2.0 < $1.estimatedValue ?? -1.0})
+            return collection.sorted(by: {$0.value ?? -2.0 < $1.value ?? -1.0})
         }
     }
     
     func updateCollection() {
         albumCount = collection.filter({$0.ownership == ownership}).count
-        collectionValue = collection.filter({$0.ownership == .owned}).map({$0.estimatedValue ?? 20.0}).reduce(0.0, +)
+        collectionValue = collection.filter({$0.ownership == .owned}).map({$0.value ?? 20.0}).reduce(0.0, +)
     }
 }
 

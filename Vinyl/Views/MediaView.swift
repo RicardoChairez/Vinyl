@@ -75,7 +75,7 @@ struct MediaView: View {
                                                     Group {
                                                         if vm.media.ownership == .owned {
                                                             Text(Ownership.owned.rawValue)
-                                                                .foregroundStyle(.blue)
+                                                                .foregroundStyle(.secondary)
                                                         }
                                                         else if vm.media.ownership == .wanted {
                                                             Text(Ownership.wanted.rawValue)
@@ -114,7 +114,7 @@ struct MediaView: View {
                                                 .foregroundStyle(.secondary)
                                                 .font(.caption2)
                                         Group {
-                                            if let estimatedPrice = vm.media.estimatedValue {
+                                            if let estimatedPrice = vm.media.value {
                                                 Text("$" + String(format: "%.2f", estimatedPrice) + " ")
                                             }
                                             else {
@@ -122,13 +122,11 @@ struct MediaView: View {
                                             }
                                         }
                                         .font(.subheadline)
-                                        .fontWeight(.semibold)
-                                            Spacer()
+                                        Spacer()
                                     }
+                                    .fontWeight(.semibold)
                                 }
                                 .padding(.bottom, 5)
-                                
-                                
                                 
                                 ScrollView(.horizontal, showsIndicators: false) {
                                     HStack {
@@ -234,9 +232,7 @@ struct MediaView: View {
                                     ForEach($vm.otherVersions) { $mediaPreview in
                                         NavigationLink(value: mediaPreview) {
                                             MediaPreviewView(mediaPreview: $mediaPreview)
-//                                                .padding(.leading)
                                         }
-                                        //                            .task({await vm.downloadImage(mediaPreview)})
                                     }
                                 }
                                 .padding(.leading)
@@ -260,7 +256,9 @@ struct MediaView: View {
             } message: {
                 Text("Are you sure you want to remove?")
             }
-            .sheet(isPresented: $editIsPresented, content: {
+            .sheet(isPresented: $editIsPresented, onDismiss: {
+                update()
+            }, content: {
                 EditMediaView(media: $vm.media)
             })
             .toolbar(content: {
@@ -345,7 +343,9 @@ struct MediaView: View {
             if !viewDidLoad {
                 Task {
                     syncMediaWithStoredModel()
-                    await vm.getEstimatedPrice()
+                    if !vm.media.customValueFlag {
+                        await vm.getEstimatedPrice()
+                    }
                     if let release = vm.media.release {
                         if vm.otherVersions.isEmpty {
                                 await vm.getOtherVersions(query: "\(release.title) \(release.artists.first?.name ?? "")")
@@ -379,6 +379,17 @@ struct MediaView: View {
             print(error.localizedDescription)
             let drop = Drop(title: Constants.drop.addToCollectionFailure, titleNumberOfLines: 1, subtitle: error.localizedDescription, subtitleNumberOfLines: 2, icon: UIImage(systemName: "xmark"))
             Drops.show(drop)
+        }
+    }
+    
+    func update() {
+        do {
+            Drops.hideAll()
+            modelContext.insert(vm.media)
+            try modelContext.save()
+        }
+        catch {
+            print(error.localizedDescription)
         }
     }
     

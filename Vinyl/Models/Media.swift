@@ -22,6 +22,8 @@ class Media {
         self.coverImageData = nil
         self.dateAdded = .now
         self.ownership = .unowned
+        self.notes = ""
+        self.customValueFlag = false
     }
     
     var dateAdded: Date
@@ -32,8 +34,10 @@ class Media {
     }
     var mediaPreview: MediaPreview
     var release: Release?
-    var estimatedValue: Double?
+    var customValueFlag: Bool
+    var value: Double?
     var ownership: Ownership
     var folder: String?
+    var notes: String
     @Attribute(.externalStorage) var coverImageData: Data?
 }

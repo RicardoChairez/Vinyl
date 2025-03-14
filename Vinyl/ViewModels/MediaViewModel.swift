@@ -134,7 +134,7 @@ class MediaViewModel: ObservableObject {
             case .success(let price):
                 Task {
                     await MainActor.run {
-                        self.media.estimatedValue = price
+                        self.media.value = price
                     }
                 }
             case .failure(let error):
