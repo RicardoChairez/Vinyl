@@ -16,6 +16,7 @@ struct MediaView: View {
     @State var colors: [Color] = []
     @StateObject var vm: MediaViewModel
     @State var viewDidLoad = false
+    @State var editIsPresented = false
     
     var body: some View {
         GeometryReader { proxy in
@@ -62,6 +63,9 @@ struct MediaView: View {
                                             Menu{
                                                 switch vm.media.ownership {
                                                 case .owned:
+                                                    Button("Edit") {
+                                                        editIsPresented = true
+                                                    }
                                                     Button("Remove from Collection", role: .destructive) {
                                                         removeFromSave()
                                                     }
@@ -88,6 +92,7 @@ struct MediaView: View {
                                                         .scaledToFit()
                                                         .frame(width: 12, height: 12)
                                                 })
+                                                .foregroundStyle(Color.primary)
                                                 .buttonStyle(.borderedProminent)
                                                 .buttonBorderShape(.circle)
                                                 .disabled(vm.media.release == nil)
@@ -105,27 +110,32 @@ struct MediaView: View {
                                 
                                 HStack {
                                     VStack(alignment: .leading) {
-                                        Group {
-                                            if vm.media.ownership == .owned {
-                                                Text(Ownership.owned.rawValue)
-                                                    .foregroundStyle(.blue)
-                                                
-                                            }
-                                            else if vm.media.ownership == .wanted {
-                                                Text(Ownership.wanted.rawValue)
-                                                    .foregroundStyle(.yellow)
-                                            }
-                                            else {
-                                                Text(Ownership.unowned.rawValue)
-                                                    .foregroundStyle(.red)
+                                        HStack {
+                                            if vm.media.ownership != .unowned {
+                                                Group {
+                                                    Group {
+                                                        if vm.media.ownership == .owned {
+                                                            Text(Ownership.owned.rawValue)
+                                                                .foregroundStyle(.blue)
+                                                        }
+                                                        else if vm.media.ownership == .wanted {
+                                                            Text(Ownership.wanted.rawValue)
+                                                                .foregroundStyle(.yellow)
+                                                        }
+                                                    }
+                                                    .font(.caption2)
+                                                    .fontWeight(.semibold)
+                                                    .padding(4)
+                                                    .background(.notPrimary)
+                                                    .clipShape(.capsule)
+                                                    
+                                                    if vm.media.ownership == .owned {
+                                                        Text("on \(vm.media.dateFormatted)")
+                                                    }
+                                                }
+                                                .padding(.bottom, 5)
                                             }
                                         }
-                                        .font(.caption2)
-                                        .fontWeight(.semibold)
-                                        .padding(4)
-                                        .background(.notPrimary)
-                                        .clipShape(.capsule)
-                                        .padding(.bottom, 5)
                                         
                                         Text(vm.media.mediaPreview.country ?? "")
                                         HStack {
@@ -140,7 +150,7 @@ struct MediaView: View {
                                     Spacer()
                                     
                                     VStack {
-                                        Text("ESTIMATED VALUE")
+                                        Text("VALUE")
                                             .foregroundStyle(.secondary)
                                             .font(.caption2)
                                         Group {
@@ -148,10 +158,10 @@ struct MediaView: View {
                                                 Text("$" + String(format: "%.2f", estimatedPrice) + " ")
                                             }
                                             else {
-                                                Text("$??.??")
+                                                Text("?")
                                             }
                                         }
-//                                        Spacer()
+                                        Spacer()
                                     }
                                     .fontWeight(.semibold)
                                 }
@@ -280,6 +290,9 @@ struct MediaView: View {
                     .background(.clear)
                 }
             }
+            .sheet(isPresented: $editIsPresented, content: {
+                EditMediaView(media: $vm.media)
+            })
             .toolbar(content: {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu{

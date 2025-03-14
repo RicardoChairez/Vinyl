@@ -30,7 +30,7 @@ enum CustomError: Error {
 }
 
 enum Ownership: String, Codable {
-    case owned = "OWNED"
+    case owned = "COLLECTED"
     case unowned = "UNOWNED"
     case wanted = "WANTED"
 }

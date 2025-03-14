@@ -15,8 +15,8 @@ class MediaViewModel: ObservableObject {
         self.media = Media(mediaPreview: mediaPreview)
     }
     
-    init(mediaModel: Media) {
-        self.media = mediaModel
+    init(media: Media) {
+        self.media = media
     }
     
     @Published var media: Media
@@ -101,7 +101,11 @@ class MediaViewModel: ObservableObject {
         NetworkManager.shared.fetchData(url: coverImageURL) { result in
             switch result {
             case .success(let imageData):
-                self.media.coverImageData = imageData
+                Task {
+                    await MainActor.run {
+                        self.media.coverImageData = imageData
+                    }
+                }
             case .failure(let error):
                 print(error)
             }

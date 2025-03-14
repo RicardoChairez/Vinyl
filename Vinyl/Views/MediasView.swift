@@ -60,7 +60,7 @@ struct MediasView: View {
                     Text("\(albumCount) Albums ")
                     Spacer()
                     if ownership == .owned {
-                        Text("Estimated Value: $" + String(format: "%.2f", collectionValue))
+                        Text("Value: $" + String(format: "%.2f", collectionValue))
                     }
                 }
                 .padding(.horizontal)
@@ -122,7 +122,7 @@ struct MediasView: View {
             })
             .searchable(text: $searchText, prompt: "Album, Format, Genre, Artist")
             .navigationDestination(for: Media.self) { media in
-                MediaView(vm: MediaViewModel(mediaModel: media))
+                MediaView(vm: MediaViewModel(media: media))
             }
             .navigationTitle(title)
             .toolbar {

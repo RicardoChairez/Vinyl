@@ -1,5 +1,5 @@
 //
-//  MediaModel.swift
+//  Media.swift
 //  Vinyl
 //
 //  Created by Chip Chairez on 2/28/25.
@@ -25,6 +25,11 @@ class Media {
     }
     
     var dateAdded: Date
+    var dateFormatted: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM-dd-yyyy"
+        return formatter.string(from: dateAdded)
+    }
     var mediaPreview: MediaPreview
     var release: Release?
     var estimatedValue: Double?

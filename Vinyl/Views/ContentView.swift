@@ -32,7 +32,7 @@ struct ContentView: View {
             }
         }
         .tint(.primary)
-        .background(.regularMaterial)
+        .background(.ultraThinMaterial)
     }
 }
 
