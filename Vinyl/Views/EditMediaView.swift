@@ -13,6 +13,7 @@ struct EditMediaView: View {
     init(media: Binding<Media>) {
         _media = media
     }
+    
     @Binding var media: Media
     var valueColor: Color {
         if !media.customValueFlag {
@@ -36,8 +37,6 @@ struct EditMediaView: View {
                     }
                     
                     Section {
-                        Toggle("Custom Value", isOn: $media.customValueFlag)
-                            .tint(.green)
                         HStack {
                             Text("Value:")
                             TextField("$0.00", value: $media.value, format: .currency(code: "USD"))
@@ -46,6 +45,8 @@ struct EditMediaView: View {
                                 .disabled(!media.customValueFlag)
                                 .keyboardType(.decimalPad)
                         }
+                        Toggle("Custom Value", isOn: $media.customValueFlag)
+                            .tint(.green)
                     }
                 }
             }

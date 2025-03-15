@@ -75,14 +75,13 @@ struct MediaView: View {
                                                     Group {
                                                         if vm.media.ownership == .owned {
                                                             Text(Ownership.owned.rawValue)
-                                                                .foregroundStyle(.secondary)
                                                         }
                                                         else if vm.media.ownership == .wanted {
                                                             Text(Ownership.wanted.rawValue)
-//                                                                .foregroundStyle(.yellow)
                                                         }
                                                     }
-                                                    .foregroundStyle(.primary)
+                                                    
+                                                    .foregroundStyle(.secondary)
                                                     .font(.caption2)
                                                     .fontWeight(.semibold)
                                                     .padding(4)
@@ -326,15 +325,15 @@ struct MediaView: View {
                             Image(systemName: "ellipsis")
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: 12, height: 12)
+                                .frame(width: 13, height: 13)
                         }
                         .foregroundStyle(Color.primary)
                         .buttonStyle(.borderedProminent)
                         .buttonBorderShape(.circle)
-                        .disabled(vm.media.release == nil)
                         .tint(.offPrimary)
                         
                     }
+                    .disabled(vm.media.release == nil)
                 }
             })
             .modelContainer(for: Media.self)

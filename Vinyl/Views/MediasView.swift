@@ -17,7 +17,7 @@ struct MediasView: View {
             self.title = "Collection"
         }
         else {
-            self.title = "Wishlist"
+            self.title = "Wantlist"
         }
     }
     
@@ -98,15 +98,25 @@ struct MediasView: View {
                         .tint(.primary)
                         .contextMenu {
                             if ownership != .owned {
-                                Button("Add to collection") {
+                                Button {
                                     withAnimation {
                                         addToCollection(media: media)
                                     }
+                                } label: {
+                                    HStack {
+                                        Text("Add to Collection")
+                                        Image(systemName: "plus")
+                                    }
                                 }
                             }
-                            Button("Remove", role: .destructive) {
+                            Button(role: .destructive) {
                                 withAnimation {
                                     removeFromCollection(media: media)
+                                }
+                            } label: {
+                                HStack {
+                                    Text("Remove")
+                                    Image(systemName: "trash")
                                 }
                             }
                         }

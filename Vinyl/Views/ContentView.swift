@@ -8,7 +8,7 @@
 import SwiftUI
 
 enum TabScreen {
-    case collection, wishlist, search
+    case collection, wantlist, search
 }
 
 struct ContentView: View {
@@ -22,7 +22,7 @@ struct ContentView: View {
 .collection){
                 MediasView(ownership: .owned)
             }
-            Tab("Wishlist", systemImage: "list.bullet", value: TabScreen
+            Tab("Wantlist", systemImage: "list.bullet", value: TabScreen
 .collection){
                 MediasView(ownership: .wanted)
             }
