@@ -41,5 +41,8 @@ class ResponseHandler {
                 completion(.failure(.parsing(error)))
             }
         }
+        else {
+            completion(.failure((.invalidData)))
+        }
     }
 }

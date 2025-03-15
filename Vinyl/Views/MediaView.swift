@@ -53,7 +53,7 @@ struct MediaView: View {
                             .clipped()
                         
                         VStack {
-                            VStack( alignment: .leading, spacing: 5 ){
+                            VStack(alignment: .leading, spacing: 5){
                                 VStack(alignment: .leading, spacing: 0) {
                                     HStack {
                                         Text(vm.media.release?.artists.first?.name ?? "")
@@ -65,6 +65,7 @@ struct MediaView: View {
                                         .font(.title)
                                         .fontWeight(.bold)
                                 }
+//                                .padding(.bottom, 5)
                             
                                 
                                 HStack {
@@ -80,19 +81,17 @@ struct MediaView: View {
                                                             Text(Ownership.wanted.rawValue)
                                                         }
                                                     }
-                                                    
                                                     .foregroundStyle(.secondary)
-                                                    .font(.caption2)
                                                     .fontWeight(.semibold)
                                                     .padding(4)
                                                     .background(.notPrimary)
                                                     .clipShape(.capsule)
                                                     
                                                     if vm.media.ownership == .owned {
-                                                        Text("on \(vm.media.dateFormatted)")
-                                                            .font(.caption2)
+                                                        Text("\(vm.media.dateFormatted)")
                                                     }
                                                 }
+                                                .font(.caption2)
                                                 .padding(.bottom, 5)
                                             }
                                         }
@@ -141,7 +140,7 @@ struct MediaView: View {
                                             
                                         }
                                     }
-                                    .padding(.bottom, 5)
+                                    .padding(.bottom, 2)
                                 }
 
                                 ScrollView(.horizontal, showsIndicators: false) {

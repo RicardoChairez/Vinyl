@@ -27,23 +27,7 @@ struct MediasView: View {
     @State var accountIsPresented = false
     let ownership: Ownership
     let title: String
-    var filteredCollection: [Media] {
-        var filteredCollection = collection.filter({$0.ownership == self.ownership})
-        filteredCollection = sortCollection(collection: filteredCollection)
-        if searchText.isEmpty {
-            return filteredCollection
-        }
-        else {
-            let lowercasedSearchText = searchText.lowercased()
-            filteredCollection = filteredCollection.filter { media in
-                media.release!.title.lowercased().contains(lowercasedSearchText) ||
-                media.release!.artists.contains(where: {$0.name?.lowercased().contains(lowercasedSearchText) ?? false}) ||
-                media.mediaPreview.genre.contains(where: {$0.lowercased().contains(lowercasedSearchText)}) ||
-                media.mediaPreview.format.contains(where: {$0.lowercased().contains(lowercasedSearchText)})
-            }
-        }
-        return filteredCollection
-    }
+    var filteredCollection: [Media] { filterCollection() }
     @State var sort: Sort = .addedRecent
     @State var albumCount: Int = 0
     @State var collectionValue: Double = 0.0
@@ -56,16 +40,16 @@ struct MediasView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                HStack {
-                    Text("\(albumCount) Albums ")
-                    Spacer()
-                    if ownership == .owned {
-                        Text("Value: $" + String(format: "%.2f", collectionValue))
-                    }
-                }
-                .padding(.horizontal)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+//                HStack {
+//                    Text("\(albumCount) Albums ")
+//                    Spacer()
+//                    if ownership == .owned {
+//                        Text("Value: $" + String(format: "%.2f", collectionValue))
+//                    }
+//                }
+//                .padding(.horizontal)
+//                .font(.caption)
+//                .foregroundStyle(.secondary)
                 
                 LazyVGrid(columns: columns, spacing: 20) {
                     ForEach(filteredCollection) { media in
@@ -214,6 +198,24 @@ struct MediasView: View {
         case .valueLow:
             return collection.sorted(by: {$0.value ?? -2.0 < $1.value ?? -1.0})
         }
+    }
+    
+    func filterCollection() -> [Media]{
+        var filteredCollection = collection.filter({$0.ownership == self.ownership})
+        filteredCollection = sortCollection(collection: filteredCollection)
+        if searchText.isEmpty {
+            return filteredCollection
+        }
+        else {
+            let lowercasedSearchText = searchText.lowercased()
+            filteredCollection = filteredCollection.filter { media in
+                media.release!.title.lowercased().contains(lowercasedSearchText) ||
+                media.release!.artists.contains(where: {$0.name?.lowercased().contains(lowercasedSearchText) ?? false}) ||
+                media.mediaPreview.genre.contains(where: {$0.lowercased().contains(lowercasedSearchText)}) ||
+                media.mediaPreview.format.contains(where: {$0.lowercased().contains(lowercasedSearchText)})
+            }
+        }
+        return filteredCollection
     }
     
     func updateCollection() {

@@ -8,7 +8,7 @@
 import SwiftUI
 
 enum TabScreen {
-    case collection, wantlist, search
+    case collection, analytics, wantlist, search
 }
 
 struct ContentView: View {
@@ -18,16 +18,16 @@ struct ContentView: View {
     var body: some View {
         TabView(selection: $tab){
             
-            Tab("Collection", systemImage: "music.note.list", value: TabScreen
-.collection){
+            Tab("Collection", systemImage: "music.note.list", value: TabScreen.collection){
                 MediasView(ownership: .owned)
             }
-            Tab("Wantlist", systemImage: "list.bullet", value: TabScreen
-.collection){
+            Tab("Analytics", systemImage: "chart.line.uptrend.xyaxis", value: TabScreen.analytics) {
+                AnalyticsView()
+            }
+            Tab("Wantlist", systemImage: "list.bullet", value: TabScreen.wantlist){
                 MediasView(ownership: .wanted)
             }
-            Tab("Search", systemImage: "magnifyingglass", value: TabScreen
-.collection){
+            Tab("Search", systemImage: "magnifyingglass", value: TabScreen.search){
                 SearchView()
             }
         }
