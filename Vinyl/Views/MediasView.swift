@@ -25,12 +25,12 @@ struct MediasView: View {
     @Query var collection: [Media]
     @State var searchText = ""
     @State var accountIsPresented = false
-    let ownership: Ownership
-    let title: String
-    var filteredCollection: [Media] { filterCollection() }
     @State var sort: Sort = .addedRecent
     @State var albumCount: Int = 0
     @State var collectionValue: Double = 0.0
+    let ownership: Ownership
+    let title: String
+    var filteredCollection: [Media] { filterCollection() }
     
     let columns = [
         GridItem(.adaptive(minimum: 100), spacing: 10),
@@ -40,17 +40,6 @@ struct MediasView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-//                HStack {
-//                    Text("\(albumCount) Albums ")
-//                    Spacer()
-//                    if ownership == .owned {
-//                        Text("Value: $" + String(format: "%.2f", collectionValue))
-//                    }
-//                }
-//                .padding(.horizontal)
-//                .font(.caption)
-//                .foregroundStyle(.secondary)
-                
                 LazyVGrid(columns: columns, spacing: 20) {
                     ForEach(filteredCollection) { media in
                         NavigationLink(value: media) {
