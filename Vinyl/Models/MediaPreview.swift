@@ -40,6 +40,9 @@ struct MediaPreview: Codable, Identifiable, Hashable {
     }
     var label: [String]
     var genre: [String]
+    var genreSet: Set<String> {
+        Set(genre)
+    }
     var style: [String]
 //    var mediaID: Int
     var master_id: Int?

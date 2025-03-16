@@ -16,6 +16,8 @@ struct AnalyticsView: View {
     @State var collection: [Media] = []
     @State var collectionStates: [CollectionState] = []
     @State var formatCounts: [FormatCount] = [FormatCount(format: "Vinyl", count: 0), FormatCount(format: "CD", count: 0), FormatCount(format: "Cassette", count: 0), FormatCount(format: "DVD", count: 0), FormatCount(format: "File", count: 0)]
+    @State var genreCountDict: [String: GenreCount] = [:]
+    @State var genreCounts: [GenreCount] = []
     
     var body: some View {
         NavigationStack {
@@ -95,8 +97,29 @@ struct AnalyticsView: View {
                             
                             Chart(formatCounts, id: \.format) { item in
                                 BarMark(x: .value("Format", item.format), y: .value("Count", item.count))
+                                    .annotation {
+                                        Text(String(item.count))
+                                            .foregroundStyle(.gray)
+                                    }
                                     .foregroundStyle(.blue)
                             }
+                            .frame(height: 200)
+                            .padding(.bottom, 20)
+                            
+                            Text("Genre")
+                                .font(.title)
+                                .fontWeight(.bold)
+                                .padding(.bottom, 10)
+                            
+                            Chart(genreCounts, id: \.genre) { item in
+                                BarMark(x: .value("Genre", item.genre), y: .value("Count", item.count))
+                                    .annotation {
+                                        Text(String(item.count))
+                                            .foregroundStyle(.gray)
+                                    }
+                                    .foregroundStyle(.blue)
+                            }
+                            .chartScrollableAxes(.horizontal)
                             .frame(height: 200)
                         }
                         .frame(maxWidth: .infinity, alignment: .topLeading)
@@ -108,7 +131,9 @@ struct AnalyticsView: View {
             .navigationTitle("Analytics")
         }
         .onAppear {
-            updateAnalytics()
+            withAnimation(Animation.linear) {
+                updateAnalytics()
+            }
         }
         .modelContainer(for: Media.self)
     }
@@ -118,6 +143,7 @@ struct AnalyticsView: View {
         getCollectionValue()
         getCollectionStates()
         getFormatCounts()
+        getGenreCounts()
     }
     func getCollection() {
         collection = saved.filter({$0.ownership == .owned}).sorted(by: {$0.dateAdded < $1.dateAdded})
@@ -157,6 +183,24 @@ struct AnalyticsView: View {
         }
         formatCounts.sort(by: {$0.count > $1.count})
     }
+    
+    func getGenreCounts() {
+        genreCountDict = [:]
+        genreCounts = []
+        
+        for media in collection {
+            let genreSet = Set(media.mediaPreview.genre)
+            for genre in genreSet {
+                if genreCountDict[genre] == nil {
+                    genreCountDict[genre] = GenreCount(genre: genre)
+                }
+                else {
+                    genreCountDict[genre]!.increment()
+                }
+            }
+        }
+        genreCounts = Array(genreCountDict.values).sorted(by: {$0.count > $1.count})
+    }
 }
 
 struct CollectionState {
@@ -167,6 +211,15 @@ struct CollectionState {
 struct FormatCount {
     let format: String
     var count: Int
+    
+    mutating func increment() {
+        count = count + 1
+    }
+}
+
+struct GenreCount {
+    let genre: String
+    var count = 1
     
     mutating func increment() {
         count = count + 1
