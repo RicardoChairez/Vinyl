@@ -35,6 +35,9 @@ struct MediaPreview: Codable, Identifiable, Hashable {
     var country: String?
     var year: String?
     var format: [String]
+    var formatSet: Set<String> {
+        Set(format)
+    }
     var label: [String]
     var genre: [String]
     var style: [String]
@@ -55,13 +58,6 @@ struct MediaPreview: Codable, Identifiable, Hashable {
     var thumbImageData: Data?
 //    var coverImageData: Data?
 //    var estimatedPrice: String?
-    
-    var formatStr: String {
-        if !format.isEmpty{
-            return format[0]
-        }
-        return "unknown"
-    }
     
 }
 

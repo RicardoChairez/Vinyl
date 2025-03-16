@@ -79,7 +79,6 @@ struct MediasView: View {
                                 }
                             }
                         }
-                        .tint(.primary)
                         .contextMenu {
                             if ownership != .owned {
                                 Button {

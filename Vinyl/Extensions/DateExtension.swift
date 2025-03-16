@@ -8,7 +8,6 @@
 import Foundation
 
 extension Date {
-    
     static func randomBetween(start: String, end: String, format: String = "yyyy-MM-dd") -> String {
         let date1 = Date.parse(start, format: format)
         let date2 = Date.parse(end, format: format)

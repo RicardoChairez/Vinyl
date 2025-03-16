@@ -21,11 +21,11 @@ struct ContentView: View {
             Tab("Collection", systemImage: "music.note.list", value: TabScreen.collection){
                 MediasView(ownership: .owned)
             }
-            Tab("Analytics", systemImage: "chart.line.uptrend.xyaxis", value: TabScreen.analytics) {
-                AnalyticsView()
-            }
             Tab("Wantlist", systemImage: "list.bullet", value: TabScreen.wantlist){
                 MediasView(ownership: .wanted)
+            }
+            Tab("Analytics", systemImage: "chart.line.uptrend.xyaxis", value: TabScreen.analytics) {
+                AnalyticsView()
             }
             Tab("Search", systemImage: "magnifyingglass", value: TabScreen.search){
                 SearchView()

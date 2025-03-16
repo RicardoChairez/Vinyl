@@ -24,14 +24,7 @@ struct EditMediaView: View {
     var body: some View {
         NavigationStack {
             VStack {
-                Text("\(media.release?.title ?? "")")
-                    .font(.headline)
-                    .fontWeight(.semibold)
                 Form {
-                    Section {
-                        TextField("Notes", text: $media.notes, axis: .vertical)
-                            .background(.clear)
-                    }
                     Section {
                         DatePicker("Date Collected:", selection: $media.dateAdded, displayedComponents: .date)
                     }
@@ -48,6 +41,10 @@ struct EditMediaView: View {
                         Toggle("Custom Value", isOn: $media.customValueFlag)
                             .tint(.green)
                     }
+                    Section {
+                        TextField("Notes", text: $media.notes, axis: .vertical)
+                            .background(.clear)
+                    }
                 }
             }
             .onTapGesture {
@@ -61,7 +58,7 @@ struct EditMediaView: View {
                     }
                 }
             })
-            .navigationTitle("Edit Album")
+            .navigationTitle(media.release?.title ?? "Edit Album")
             .navigationBarTitleDisplayMode(.inline)
         }
     }

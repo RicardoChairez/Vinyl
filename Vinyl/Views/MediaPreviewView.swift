@@ -23,7 +23,7 @@ struct MediaPreviewView: View {
                         Color.secondary
                             .frame(width: 70, height: 70)
                     }
-                    Text(mediaPreview.formatStr)
+                    Text(mediaPreview.format.first ?? "")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }

@@ -108,9 +108,10 @@ struct MediaView: View {
                                     
                                     Spacer()
                                     VStack {
-                                            Text("VALUE")
-                                                .foregroundStyle(.secondary)
-                                                .font(.caption2)
+                                        Spacer()
+                                        Text("VALUE")
+                                            .foregroundStyle(.secondary)
+                                            .font(.caption2)
                                         Group {
                                             if let estimatedPrice = vm.media.value {
                                                 Text("$" + String(format: "%.2f", estimatedPrice) + " ")
@@ -120,7 +121,6 @@ struct MediaView: View {
                                             }
                                         }
                                         .font(.subheadline)
-                                        Spacer()
                                     }
                                     .fontWeight(.semibold)
                                 }
