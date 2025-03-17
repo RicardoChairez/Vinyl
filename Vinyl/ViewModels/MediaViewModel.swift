@@ -6,8 +6,6 @@
 //
 
 import Foundation
-import SwiftUI
-import Drops
 
 @MainActor
 class MediaViewModel: ObservableObject {
@@ -22,94 +20,55 @@ class MediaViewModel: ObservableObject {
     @Published var media: Media
     @Published var otherVersions: [MediaPreview] = []
     @Published var descriptionLines: Int? = 3
+    @Published var viewDidLoad = false
+    @Published var editIsPresented = false
+    @Published var removeIsConfirming = false
     
-    func getRelease() async {
-        guard let endpoint = media.mediaPreview.resource_url else { return }
+    func fetchRelease() async throws -> Release {
+        if let release = media.release { return release }
+        let endpoint = media.mediaPreview.resource_url ?? ""
         let url = URL(string: endpoint)
-        NetworkManager.shared.request(modelType: Release.self, url: url, headers: nil){ result in
-            switch result {
-            case .success(let release):
-                self.media.release = release
-                Task {
-                    await self.getOtherVersions(query: "\(self.media.release!.title) \(self.media.release!.artists.first?.name ?? "")")
-                }
-            case .failure(let error):
-                    (error)
-                let drop = Drop(title: "Error", subtitle: error.localizedDescription, subtitleNumberOfLines: 2)
-                Drops.show(drop)
-//                completion(error)
-            }
-        }
+        let release = try await NetworkManager.shared.request(modelType: Release.self, url: url)
+        return release
     }
     
-    func getOtherVersions(query: String) async {
+    func fetchOtherVersions(query: String) async -> [MediaPreview]{
+        if !otherVersions.isEmpty { return otherVersions }
         let endpoint = getEndpoint(query: query)
         let url = URL(string: endpoint)
-        NetworkManager.shared.request(modelType: MediaSearchResponse.self, url: url, headers: nil){ result in
-            switch result {
-            case .success(let response):
-                Task {
-                    await MainActor.run {
-                        self.otherVersions = response.results.filter({
-                            $0.master_id == self.media.mediaPreview.master_id &&
-                            $0.id != self.media.mediaPreview.id
-                        })
-                    }
-                    await self.downloadOtherVersionImages()
-                }
-//                completion(nil)
-            case .failure(let error):
-                print(error)
-//                completion(error)
-            }
-        }
+        let mediaSearchResponse = try? await NetworkManager.shared.request(modelType: MediaSearchResponse.self, url: url)
+        let otherVersions = mediaSearchResponse?.results.filter({
+            $0.master_id == self.media.mediaPreview.master_id &&
+            $0.id != self.media.mediaPreview.id
+        })
+        return otherVersions ?? []
     }
     
     func getEndpoint(query: String) -> String{
         return "https://api.discogs.com/database/search?q=\(query)&type=release&per_page=20&\(Constants.api.key)"
     }
     
-    func downloadOtherVersionImages() async {
+    func getOtherVersionsImageData() async {
         for mediaPreview in otherVersions {
-            await downloadMediaPreviewImage(mediaPreview)
-        }
-    }
-    
-    func downloadMediaPreviewImage(_ mediaPreview: MediaPreview) async {
-        guard let index = otherVersions.firstIndex(where: {$0 == mediaPreview}), otherVersions[index].thumbImageData == nil, mediaPreview.thumbImageURL != nil else {
-            return
-        }
-        NetworkManager.shared.fetchData(url: mediaPreview.thumbImageURL) { result in
-            switch result {
-            case .success(let imageData):
-                Task {
-                    await MainActor.run {
-                        self.otherVersions[index].thumbImageData = imageData
-                    }
-                }
-                
-            case .failure(let error):
-                print(error)
+            if let index = otherVersions.firstIndex(where: {$0 == mediaPreview}), otherVersions[index].thumbImageData == nil, mediaPreview.thumbImageURL != nil {
+                otherVersions[index].thumbImageData = await fetchThumbImage(mediaPreview)
             }
         }
     }
     
-    func downloadImage() async {
-        guard media.mediaPreview.cover_image.contains(".jpeg"), let coverImageURL = URL(string: media.mediaPreview.cover_image) else {
-            return
+    func fetchThumbImage(_ mediaPreview: MediaPreview) async -> Data?{
+        let data = try? await NetworkManager.shared.fetchData(url: mediaPreview.thumbImageURL)
+        return data
+    }
+    
+    func fetchCoverImageData() async -> Data?{
+        if let data = media.coverImageData { return data }
+        guard media.mediaPreview.cover_image.contains(".jpeg") else {
+            return nil
         }
-        NetworkManager.shared.fetchData(url: coverImageURL) { result in
-            switch result {
-            case .success(let imageData):
-                Task {
-                    await MainActor.run {
-                        self.media.coverImageData = imageData
-                    }
-                }
-            case .failure(let error):
-                print(error)
-            }
-        }
+        let url = URL(string: media.mediaPreview.cover_image)
+        let data = try? await NetworkManager.shared.fetchData(url: url)
+        return data
     }
     
     func toggleDescription() {
@@ -121,7 +80,7 @@ class MediaViewModel: ObservableObject {
         }
     }
     
-    func getEstimatedPrice() async {
+    func getEstimatedPrice() async -> Double?{
         let query: String
         if media.mediaPreview.catno.isEmpty {
             query = "\(media.mediaPreview.title) \((media.mediaPreview.year ?? ""))"
@@ -129,18 +88,8 @@ class MediaViewModel: ObservableObject {
         else {
             query = media.mediaPreview.catno
         }
-        NetworkManager.shared.getAveragePrice(query: query) { result in
-            switch result {
-            case .success(let price):
-                Task {
-                    await MainActor.run {
-                        self.media.value = price
-                    }
-                }
-            case .failure(let error):
-                print(error)
-            }
-        }
+        let value = try? await NetworkManager.shared.getAveragePrice(query: query)
+        return value
     }
 }
 

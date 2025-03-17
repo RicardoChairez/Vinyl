@@ -13,11 +13,8 @@ import Drops
 struct MediaView: View {
     @Environment(\.modelContext) private var modelContext
     @Query var collection: [Media]
-    @State var colors: [Color] = []
     @StateObject var vm: MediaViewModel
-    @State var viewDidLoad = false
-    @State var editIsPresented = false
-    @State var removeIsConfirming = false
+    @State var colors: [Color] = []
     
     var body: some View {
         GeometryReader { proxy in
@@ -108,7 +105,6 @@ struct MediaView: View {
                                     
                                     Spacer()
                                     VStack {
-                                        Spacer()
                                         Text("VALUE")
                                             .foregroundStyle(.secondary)
                                             .font(.caption2)
@@ -121,6 +117,8 @@ struct MediaView: View {
                                             }
                                         }
                                         .font(.subheadline)
+                                        
+                                        Spacer()
                                     }
                                     .fontWeight(.semibold)
                                 }
@@ -246,7 +244,7 @@ struct MediaView: View {
                     .background(.clear)
                 }
             }
-            .confirmationDialog("Are you sure you want to remove this?", isPresented: $removeIsConfirming){
+            .confirmationDialog("Are you sure you want to remove this?", isPresented: $vm.removeIsConfirming){
                 Button("Remove", role: .destructive) {
                     removeFromSave()
                 }
@@ -254,7 +252,7 @@ struct MediaView: View {
             } message: {
                 Text("Are you sure you want to remove?")
             }
-            .sheet(isPresented: $editIsPresented, onDismiss: {
+            .sheet(isPresented: $vm.editIsPresented, onDismiss: {
                 update()
             }, content: {
                 EditMediaView(media: $vm.media)
@@ -265,7 +263,7 @@ struct MediaView: View {
                         switch vm.media.ownership {
                         case .owned:
                             Button{
-                                editIsPresented = true
+                                vm.editIsPresented = true
                             } label: {
                                 HStack {
                                     Text("Edit")
@@ -273,7 +271,7 @@ struct MediaView: View {
                                 }
                             }
                             Button(role: .destructive) {
-                                removeIsConfirming = true
+                                vm.removeIsConfirming = true
                             } label: {
                                 HStack {
                                     Text("Remove from Collection")
@@ -308,7 +306,7 @@ struct MediaView: View {
                                 }
                             }
                             Button(role: .destructive) {
-                                removeIsConfirming = true
+                                vm.removeIsConfirming = true
                             } label: {
                                 HStack {
                                     Text("Remove from Wantlist")
@@ -338,27 +336,36 @@ struct MediaView: View {
             .modelContainer(for: Media.self)
         }
         .onAppear {
-            if !viewDidLoad {
+            if !vm.viewDidLoad {
+                syncMediaWithStoredModel()
                 Task {
-                    syncMediaWithStoredModel()
-                    if !vm.media.customValueFlag {
-                        await vm.getEstimatedPrice()
-                    }
-                    if let release = vm.media.release {
-                        if vm.otherVersions.isEmpty {
-                                await vm.getOtherVersions(query: "\(release.title) \(release.artists.first?.name ?? "")")
-                        }
-                    }
-                    else {
-                            await vm.getRelease()
-                    }
-                    if vm.media.coverImageData == nil {
-                            await vm.downloadImage()
-                    }
-                    self.viewDidLoad = true
+                    await getData()
                 }
             }
         }
+    }
+    
+    func getData() async {
+        async let value = vm.getEstimatedPrice()
+        async let release = vm.fetchRelease()
+        async let otherVersion = vm.fetchOtherVersions(query: vm.media.mediaPreview.title)
+        async let coverImageData = vm.fetchCoverImageData()
+        
+        do {
+            let (fetchedValue, fetchedRelease, fetchedOtherVersions, fetchedCoverImageData) = try await (value, release, otherVersion, coverImageData)
+            vm.media.value = fetchedValue
+            vm.media.release = fetchedRelease
+            vm.otherVersions = fetchedOtherVersions
+            vm.media.coverImageData = fetchedCoverImageData
+            
+            await vm.getOtherVersionsImageData()
+        }
+        catch {
+            let drop = Drop(stringLiteral: error.localizedDescription)
+            Drops.show(drop)
+        }
+        
+        vm.viewDidLoad = true
     }
     
     func save(ownership: Ownership) {

@@ -9,26 +9,23 @@ import Foundation
 
 class RequestHandler {
     
-    func requestDataAPI(urlRequest: URLRequest, completion: @escaping (Result<Data, NetworkError>) -> Void) {
-        let session = URLSession.shared.dataTask(with: urlRequest) { data, response, error in
-            guard let response = response as? HTTPURLResponse,
-                  200 ... 299 ~= response.statusCode else {
-                completion(.failure(.invalidResponse))
-                return
-            }
-            switch response.statusCode {
-            case 400 ..< 500: completion(.failure(.network(error)))
-            case 500 ..< 600: completion(.failure(.serverError))
-            default:
-                break
-            }
-            
-            guard let data, error == nil else {
-                completion(.failure(.invalidData))
-                return
-            }
-            completion(.success(data))
+    func requestDataAPI(url: URL) async throws -> Data {
+        let (data, response) = try await URLSession.shared.data(from: url)
+        guard let statusCode = (response as? HTTPURLResponse)?.statusCode else {
+            //                    throw NetworkingError.invalidStatusCode(statusCode: -1)
+            throw NetworkError.invalidResponse
         }
-        session.resume()
+        guard let response = response as? HTTPURLResponse,
+              200 ... 299 ~= statusCode else {
+            throw NetworkError.invalidResponse
+              }
+        switch statusCode {
+        case 400 ..< 500: throw NetworkError.network
+        case 500 ..< 600: throw NetworkError.serverError
+        default:
+            break
+        }
+        
+        return data
     }
 }

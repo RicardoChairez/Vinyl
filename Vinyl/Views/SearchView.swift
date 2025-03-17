@@ -3,11 +3,12 @@
 //  Vinyl
 //
 //  Created by Chip Chairez on 2/27/25.
-//
+
 
 import CodeScanner
 import SwiftUI
 import AVFoundation
+import Drops
 
 struct SearchView: View {
     
@@ -23,7 +24,7 @@ struct SearchView: View {
                 else {
                     ScrollView {
                         VStack {
-                            ForEach($vm.medias) { $mediaPreview in
+                            ForEach($vm.searchResult) { $mediaPreview in
                                 NavigationLink(value: mediaPreview) {
                                     MediaPreviewView(mediaPreview: $mediaPreview)
                                 }
@@ -42,11 +43,7 @@ struct SearchView: View {
             .searchable(text: $vm.searchText)
             .onSubmit(of: .search){
                 Task {
-                    await vm.search(query: vm.searchText) { error in
-                        if let error = error {
-                            vm.showErrorDrop(error: error)
-                        }
-                    }
+                    await search()
                 }
             }
             .toolbar {
@@ -70,7 +67,7 @@ struct SearchView: View {
                             .foregroundStyle(.secondary)
                     }
                     CodeScannerView(codeTypes: [.upce, .ean8, .ean13, .code128, .code93, .code39, .pdf417], scanMode: .continuous, simulatedData: "7 2064-24425-2 4") { result in
-                        vm.handleScan(result: result)
+                        handleScan(result: result)
                     }
                     .aspectRatio(1.5, contentMode: .fit)
                     .presentationDetents([.medium])
@@ -78,8 +75,39 @@ struct SearchView: View {
             }
         }
     }
+    
+    func search() async {
+        vm.setState(state: .searching)
+        async let searchResult = vm.fetchSearchResult()
+        
+        do {
+            let (fetchedSearchResult) = try await (searchResult)
+            vm.searchResult = fetchedSearchResult
+            vm.setState(state: .notSearching)
+            await vm.downloadImages()
+        }
+        catch {
+            vm.setState(state: .notSearching)
+            let drop = Drop(stringLiteral: error.localizedDescription)
+            Drops.show(drop)
+        }
+        
+    }
+    
+    func handleScan(result: Result<ScanResult, ScanError>) {
+        vm.isShowingScanner = false
+        switch result {
+        case.success(let result):
+            vm.searchText = result.string
+            Task {
+                await search()
+            }
+        case.failure(let error):
+            print(error.localizedDescription)
+        }
+    }
 }
 
-#Preview {
-    SearchView()
-}
+//#Preview {
+//    SearchView()
+//}
