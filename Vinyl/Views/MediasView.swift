@@ -23,11 +23,13 @@ struct MediasView: View {
     
     @Environment(\.modelContext) private var modelContext
     @Query var collection: [Media]
+    
     @State var searchText = ""
     @State var accountIsPresented = false
     @State var sort: Sort = .addedRecent
     @State var albumCount: Int = 0
     @State var collectionValue: Double = 0.0
+    
     let ownership: Ownership
     let title: String
     var filteredCollection: [Media] { filterCollection() }
@@ -96,9 +98,6 @@ struct MediasView: View {
                 }
                 .padding(.horizontal)
             }
-            .onAppear {
-                updateCollection()
-            }
             .sheet(isPresented: $accountIsPresented, content: {
                 AccountView()
             })
@@ -139,7 +138,6 @@ struct MediasView: View {
             modelContext.delete(media)
             try modelContext.save()
             media.ownership = .unowned
-            updateCollection()
             let drop = Drop(title: "Successfully removed", icon: UIImage(systemName: "checkmark"))
             Drops.show(drop)
         }
@@ -156,7 +154,6 @@ struct MediasView: View {
             media.ownership = .owned
             modelContext.insert(media)
             try modelContext.save()
-            updateCollection()
             let drop = Drop(title: "Successfully added", titleNumberOfLines: 1, subtitle: nil, subtitleNumberOfLines: 0, icon: UIImage(systemName: "checkmark"))
             Drops.show(drop)
         }
@@ -204,11 +201,6 @@ struct MediasView: View {
             }
         }
         return filteredCollection
-    }
-    
-    func updateCollection() {
-        albumCount = collection.filter({$0.ownership == ownership}).count
-        collectionValue = collection.filter({$0.ownership == .owned}).map({$0.value ?? 20.0}).reduce(0.0, +)
     }
 }
 

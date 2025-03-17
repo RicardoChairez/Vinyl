@@ -5,11 +5,8 @@
 //  Created by Chip Chairez on 2/27/25.
 //
 
-import CodeScanner
 import Foundation
-import Drops
 import SwiftData
-import SwiftUICore
 
 @MainActor
 class SearchViewModel: ObservableObject {
@@ -45,12 +42,6 @@ class SearchViewModel: ObservableObject {
         }
         let data = try? await NetworkManager.shared.fetchData(url: media.thumbImageURL)
         searchResult[index].thumbImageData = data
-    }
-    
-    
-    func showErrorDrop(error: Error) {
-        let drop = Drop(title: "Error", subtitle: error.localizedDescription, subtitleNumberOfLines: 2)
-        Drops.show(drop)
     }
     
     func setState(state: vmState) {

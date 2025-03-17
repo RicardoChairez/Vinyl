@@ -24,6 +24,7 @@ class MediaViewModel: ObservableObject {
     @Published var editIsPresented = false
     @Published var removeIsConfirming = false
     
+    
     func fetchRelease() async throws -> Release {
         if let release = media.release { return release }
         let endpoint = media.mediaPreview.resource_url ?? ""
@@ -81,6 +82,7 @@ class MediaViewModel: ObservableObject {
     }
     
     func getEstimatedPrice() async -> Double?{
+        if media.customValueFlag { return media.value }
         let query: String
         if media.mediaPreview.catno.isEmpty {
             query = "\(media.mediaPreview.title) \((media.mediaPreview.year ?? ""))"
@@ -88,8 +90,13 @@ class MediaViewModel: ObservableObject {
         else {
             query = media.mediaPreview.catno
         }
-        let value = try? await NetworkManager.shared.getAveragePrice(query: query)
-        return value
+        do {
+            let value = try await NetworkManager.shared.getAveragePrice(query: query)
+            return value
+        }
+        catch {
+            return media.value
+        }
     }
 }
 

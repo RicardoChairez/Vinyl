@@ -15,6 +15,7 @@ struct MediaView: View {
     @Query var collection: [Media]
     @StateObject var vm: MediaViewModel
     @State var colors: [Color] = []
+    @State var valueOpacity = 0.0
     
     var body: some View {
         GeometryReader { proxy in
@@ -62,7 +63,7 @@ struct MediaView: View {
                                         .font(.title)
                                         .fontWeight(.bold)
                                 }
-//                                .padding(.bottom, 5)
+                                .padding(.bottom, 5)
                             
                                 
                                 HStack {
@@ -89,40 +90,44 @@ struct MediaView: View {
                                                     }
                                                 }
                                                 .font(.caption2)
-                                                .padding(.bottom, 5)
+                                                .padding(.bottom, 10)
                                             }
                                         }
                                         
-                                        Text(vm.media.mediaPreview.country ?? "")
-                                        HStack {
-                                            Text(vm.media.release?.released_formatted ?? "")
-                                            Text(vm.media.release?.label ?? "")
+                                        Group {
+                                            Text(vm.media.mediaPreview.country ?? "")
+                                            HStack {
+                                                Text(vm.media.release?.released_formatted ?? "")
+                                                Text(vm.media.release?.label ?? "")
+                                            }
+                                            Text("CATNO: \(vm.media.mediaPreview.catno)")
                                         }
-                                        Text("CATNO: \(vm.media.mediaPreview.catno)")
+                                        .lineLimit(1)
                                     }
                                     .font(.footnote)
                                     .foregroundStyle(.secondary)
                                     
                                     Spacer()
-                                    VStack {
-                                        Text("VALUE")
-                                            .foregroundStyle(.secondary)
-                                            .font(.caption2)
-                                        Group {
-                                            if let estimatedPrice = vm.media.value {
-                                                Text("$" + String(format: "%.2f", estimatedPrice) + " ")
-                                            }
-                                            else {
-                                                Text("?")
+                                    if let value = vm.media.value {
+                                        VStack {
+                                            Text("VALUE")
+                                                .foregroundStyle(.secondary)
+                                                .font(.caption2)
+                                            Text("$" + String(format: "%.2f", value) + " ")
+                                                .font(.headline)
+                                            
+                                            Spacer()
+                                        }
+                                        .opacity(valueOpacity)
+                                        .onAppear {
+                                            withAnimation(.easeIn){
+                                                valueOpacity = 1.0
                                             }
                                         }
-                                        .font(.subheadline)
-                                        
-                                        Spacer()
+                                        .fontWeight(.semibold)
                                     }
-                                    .fontWeight(.semibold)
                                 }
-                                .padding(.bottom, 5)
+                                .padding(.bottom, 10)
                                 
                                 ScrollView(.horizontal, showsIndicators: false) {
                                     HStack {
@@ -155,7 +160,7 @@ struct MediaView: View {
                                         }
                                     }
                                 }
-                                .padding(.bottom, 5)
+                                .padding(.bottom, 10)
                                 
                                 if let notes = vm.media.release?.notes {
                                     VStack(alignment: .leading){
@@ -179,7 +184,7 @@ struct MediaView: View {
                                         vm.toggleDescription()
                                     })
                                     .font(.caption2)
-                                    .padding(.bottom, 5)
+                                    .padding(.bottom, 10)
                                 }
                                 
                                 if let tracklist = vm.media.release?.tracklist {
@@ -346,22 +351,25 @@ struct MediaView: View {
     }
     
     func getData() async {
-        async let value = vm.getEstimatedPrice()
         async let release = vm.fetchRelease()
         async let otherVersion = vm.fetchOtherVersions(query: vm.media.mediaPreview.title)
         async let coverImageData = vm.fetchCoverImageData()
         
         do {
-            let (fetchedValue, fetchedRelease, fetchedOtherVersions, fetchedCoverImageData) = try await (value, release, otherVersion, coverImageData)
-            vm.media.value = fetchedValue
+            let (fetchedRelease, fetchedOtherVersions, fetchedCoverImageData) = try await (release, otherVersion, coverImageData)
+            
             vm.media.release = fetchedRelease
             vm.otherVersions = fetchedOtherVersions
-            vm.media.coverImageData = fetchedCoverImageData
+            withAnimation(.easeIn) {
+                vm.media.coverImageData = fetchedCoverImageData
+            }
             
+            vm.media.value = await vm.getEstimatedPrice()
             await vm.getOtherVersionsImageData()
+            
         }
         catch {
-            let drop = Drop(stringLiteral: error.localizedDescription)
+            let drop = Drop(title: "Error", subtitle: error.localizedDescription, subtitleNumberOfLines: 2)
             Drops.show(drop)
         }
         

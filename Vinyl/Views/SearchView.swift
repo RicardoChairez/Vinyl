@@ -83,15 +83,13 @@ struct SearchView: View {
         do {
             let (fetchedSearchResult) = try await (searchResult)
             vm.searchResult = fetchedSearchResult
-            vm.setState(state: .notSearching)
-            await vm.downloadImages()
         }
         catch {
-            vm.setState(state: .notSearching)
-            let drop = Drop(stringLiteral: error.localizedDescription)
-            Drops.show(drop)
+            showErrorDrop(error: error)
         }
         
+        vm.setState(state: .notSearching)
+        await vm.downloadImages()
     }
     
     func handleScan(result: Result<ScanResult, ScanError>) {
@@ -105,6 +103,11 @@ struct SearchView: View {
         case.failure(let error):
             print(error.localizedDescription)
         }
+    }
+    
+    func showErrorDrop(error: Error) {
+        let drop = Drop(title: "Error", subtitle: error.localizedDescription, subtitleNumberOfLines: 2)
+        Drops.show(drop)
     }
 }
 
