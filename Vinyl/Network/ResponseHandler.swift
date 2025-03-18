@@ -32,8 +32,10 @@ class ResponseHandler {
                 if prices.isEmpty {
                     throw NetworkError.invalidData
                 }
-                let average: Double = Double(prices.reduce(0, +) / Double(prices.count))
-                return average
+                let median: Double = prices.sorted(by: {$0 < $1})[prices.count / 2]
+                return median
+//                let average: Double = Double(prices.reduce(0, +) / Double(prices.count))
+//                return average
                 
             }
             catch {

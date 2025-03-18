@@ -37,9 +37,7 @@ struct MediaView: View {
                                         .resizable()
                                         .scaledToFit()
                                         .task {
-                                            withAnimation(.easeIn) {
-                                                getColorsFromImage(uiImage)
-                                            }
+                                            getColorsFromImage(uiImage)
                                         }
                                 }
                                 else {
@@ -64,35 +62,38 @@ struct MediaView: View {
                                         .fontWeight(.bold)
                                 }
                                 .padding(.bottom, 5)
-                            
+                                
+                                HStack {
+                                        Group {
+                                            Group {
+                                                if vm.media.ownership == .owned {
+                                                    Text(Ownership.owned.rawValue)
+                                                        .foregroundStyle(.blue)
+                                                }
+                                                else if vm.media.ownership == .wanted {
+                                                    Text(Ownership.wanted.rawValue)
+                                                        .foregroundStyle(.yellow)
+                                                }
+                                                else {
+                                                    Text(Ownership.unowned.rawValue)
+                                                        .foregroundStyle(.secondary)
+                                                }
+                                            }
+                                            .fontWeight(.semibold)
+                                            .padding(4)
+                                            .background(.notPrimary)
+                                            .clipShape(.capsule)
+                                            
+                                            if vm.media.ownership == .owned {
+                                                Text("\(vm.media.dateFormatted)")
+                                            }
+                                        }
+                                        .font(.caption2)
+                                        .padding(.bottom, 10)
+                                }
                                 
                                 HStack {
                                     VStack(alignment: .leading) {
-                                        HStack {
-                                            if vm.media.ownership != .unowned {
-                                                Group {
-                                                    Group {
-                                                        if vm.media.ownership == .owned {
-                                                            Text(Ownership.owned.rawValue)
-                                                        }
-                                                        else if vm.media.ownership == .wanted {
-                                                            Text(Ownership.wanted.rawValue)
-                                                        }
-                                                    }
-                                                    .foregroundStyle(.secondary)
-                                                    .fontWeight(.semibold)
-                                                    .padding(4)
-                                                    .background(.notPrimary)
-                                                    .clipShape(.capsule)
-                                                    
-                                                    if vm.media.ownership == .owned {
-                                                        Text("\(vm.media.dateFormatted)")
-                                                    }
-                                                }
-                                                .font(.caption2)
-                                                .padding(.bottom, 10)
-                                            }
-                                        }
                                         
                                         Group {
                                             Text(vm.media.mediaPreview.country ?? "")
@@ -115,7 +116,6 @@ struct MediaView: View {
                                                 .font(.caption2)
                                             Text("$" + String(format: "%.2f", value) + " ")
                                                 .font(.headline)
-                                            
                                             Spacer()
                                         }
                                         .opacity(valueOpacity)
@@ -360,8 +360,10 @@ struct MediaView: View {
             
             vm.media.release = fetchedRelease
             vm.otherVersions = fetchedOtherVersions
-            withAnimation(.easeIn) {
-                vm.media.coverImageData = fetchedCoverImageData
+            if vm.media.coverImageData == nil {
+                withAnimation(.easeIn) {
+                    vm.media.coverImageData = fetchedCoverImageData
+                }
             }
             
             vm.media.value = await vm.getEstimatedPrice()
@@ -427,7 +429,9 @@ struct MediaView: View {
     
     func getColorsFromImage(_ image: UIImage) {
         if let cgImage = image.cgImage {
-            colors = Array(dominantColorsInImage(cgImage).map({Color(cgColor: $0)})[0..<4])
+            withAnimation(.easeIn){
+                colors = Array(dominantColorsInImage(cgImage).map({Color(cgColor: $0)})[0..<4])
+            }
         }
     }
     

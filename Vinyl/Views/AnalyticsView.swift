@@ -12,7 +12,7 @@ import Charts
 struct AnalyticsView: View {
     @Environment(\.modelContext) private var modelContext
     @Query var saved: [Media]
-    @State var collectionValue: Double = 0.0
+    @State var collectionValue: Double = 0
     @State var collection: [Media] = []
     @State var collectionStates: [CollectionState] = []
     @State var formatCounts: [FormatCount] = [FormatCount(format: "Vinyl", count: 0), FormatCount(format: "CD", count: 0), FormatCount(format: "Cassette", count: 0), FormatCount(format: "DVD", count: 0), FormatCount(format: "File", count: 0)]

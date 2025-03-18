@@ -23,6 +23,7 @@ struct MediasView: View {
     
     @Environment(\.modelContext) private var modelContext
     @Query var collection: [Media]
+    @Namespace private var namespace
     
     @State var searchText = ""
     @State var accountIsPresented = false
@@ -60,7 +61,7 @@ struct MediasView: View {
                                     VStack(alignment: .leading, spacing: 0) {
                                         Text(media.release?.title ?? media.mediaPreview.title )
                                         Text(media.release?.artists.first?.name ?? "")
-                                            .foregroundStyle(.secondary)
+                                            .foregroundStyle(Color.secondary)
                                     }
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                     .font(.footnote)
@@ -70,6 +71,7 @@ struct MediasView: View {
                                 }
                             }
                         }
+                        .matchedTransitionSource(id: "zoom\(media.id)", in: namespace)
                         .contextMenu {
                             if ownership != .owned {
                                 Button {
@@ -104,6 +106,7 @@ struct MediasView: View {
             .searchable(text: $searchText, prompt: "Album, Format, Genre, Artist")
             .navigationDestination(for: Media.self) { media in
                 MediaView(vm: MediaViewModel(media: media))
+                    .navigationTransition(.zoom(sourceID: "zoom\(media.id)", in: namespace))
             }
             .navigationTitle(title)
             .toolbar {
