@@ -18,7 +18,7 @@ class RequestHandler {
         guard let response = response as? HTTPURLResponse,
               200 ... 299 ~= statusCode else {
             throw NetworkError.invalidResponse
-              }
+        }
         switch statusCode {
         case 400 ..< 500: throw NetworkError.network
         case 500 ..< 600: throw NetworkError.serverError

@@ -20,24 +20,20 @@ class Media {
     init(mediaPreview: MediaPreview) {
         self.mediaPreview = mediaPreview
         self.coverImageData = nil
-        self.dateAdded = .now
-        self.ownership = .unowned
-        self.notes = ""
-        self.customValueFlag = false
     }
     
-    var dateAdded: Date
+    var dateAdded: Date = Date.now
     var dateFormatted: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "MM-dd-yyyy"
         return formatter.string(from: dateAdded)
     }
-    var mediaPreview: MediaPreview
+    var mediaPreview: MediaPreview = MediaPreview()
     var release: Release?
-    var customValueFlag: Bool
+    var customValueFlag: Bool = false
     var value: Double?
-    var ownership: Ownership
+    var ownership: Ownership = Ownership.unowned
     var folder: String?
-    var notes: String
+    var notes: String = ""
     @Attribute(.externalStorage) var coverImageData: Data?
 }

@@ -23,17 +23,17 @@ struct VinylApp: App {
         let schema = Schema([
             Media.self,
         ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        let modelConfiguration = ModelConfiguration()
 
         do {
             sharedModelContainer = try ModelContainer(for: schema, configurations: [modelConfiguration])
-            let fetchedCollections = try sharedModelContainer.mainContext.fetch(FetchDescriptor<Media>())
-            if let previousCollections = fetchedCollections.first {
-
-            } else {
-//                let newCollections = Collections(ownedCollection: [], wantedCollection: [])
-//                sharedModelContainer.mainContext.insert(newCollections)
-            }
+//            let fetchedCollections = try sharedModelContainer.mainContext.fetch(FetchDescriptor<Media>())
+//            if let previousCollections = fetchedCollections.first {
+//
+//            } else {
+////                let newCollections = Collections(ownedCollection: [], wantedCollection: [])
+////                sharedModelContainer.mainContext.insert(newCollections)
+//            }
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
