@@ -29,7 +29,7 @@ struct MediaPreviewView: View {
                 }
                 VStack(alignment: .leading, spacing: 5) {
                     Spacer()
-                    Text(mediaPreview.title)
+                    Text(mediaPreview.title ?? "")
                         .font(.subheadline)
                         .fontWeight(.semibold)
                         .lineLimit(2)

@@ -57,7 +57,7 @@ struct MediaView: View {
                                             .font(.headline)
                                         Spacer()
                                     }
-                                    Text(vm.media.release?.title ?? vm.media.mediaPreview.title)
+                                    Text(vm.media.release?.title ?? vm.media.mediaPreview.title ?? "")
                                         .font(.title)
                                         .fontWeight(.bold)
                                 }
@@ -100,9 +100,9 @@ struct MediaView: View {
                                             Text(vm.media.mediaPreview.country ?? "")
                                             HStack {
                                                 Text(vm.media.release?.released_formatted ?? "")
-                                                Text(vm.media.release?.label ?? "")
+                                                Text(vm.media.release?.labels.first?.name ?? "")
                                             }
-                                            Text("CATNO: \(vm.media.mediaPreview.catno)")
+                                            Text("CATNO: \(vm.media.mediaPreview.catno ?? "")")
                                         }
                                         .lineLimit(1)
                                     }
@@ -353,7 +353,7 @@ struct MediaView: View {
     
     func getData() async {
         async let release = vm.fetchRelease()
-        async let otherVersion = vm.fetchOtherVersions(query: vm.media.mediaPreview.title)
+        async let otherVersion = vm.fetchOtherVersions(query: vm.media.mediaPreview.title ?? "")
         async let coverImageData = vm.fetchCoverImageData()
         
         do {

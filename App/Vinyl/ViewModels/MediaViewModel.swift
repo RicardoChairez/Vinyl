@@ -64,10 +64,10 @@ class MediaViewModel: ObservableObject {
     
     func fetchCoverImageData() async -> Data?{
         if let data = media.coverImageData { return data }
-        guard media.mediaPreview.cover_image.contains(".jpeg") else {
+        guard let coverImage = media.mediaPreview.cover_image, coverImage.contains(".jpeg") else {
             return nil
         }
-        let url = URL(string: media.mediaPreview.cover_image)
+        let url = URL(string: coverImage)
         let data = try? await NetworkManager.shared.fetchData(url: url)
         return data
     }
@@ -84,11 +84,11 @@ class MediaViewModel: ObservableObject {
     func getEstimatedPrice() async -> Double?{
         if media.customValueFlag { return media.value }
         let query: String
-        if media.mediaPreview.catno.isEmpty {
-            query = "\(media.mediaPreview.title) \((media.mediaPreview.year ?? ""))"
+        if let catno = media.mediaPreview.catno, !catno.isEmpty {
+            query = catno
         }
         else {
-            query = media.mediaPreview.catno
+            query = "\(media.mediaPreview.title ?? "") \((media.mediaPreview.year ?? ""))"
         }
         do {
             let value = try await NetworkManager.shared.getAveragePrice(query: query)

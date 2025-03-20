@@ -59,7 +59,7 @@ struct MediasView: View {
                                                 .shadow(color: Color.black.opacity(0.2), radius: 2)
                                         }
                                     VStack(alignment: .leading, spacing: 0) {
-                                        Text(media.release?.title ?? media.mediaPreview.title )
+                                        Text(media.release?.title ?? media.mediaPreview.title ?? "" )
                                         Text(media.release?.artists.first?.name ?? "")
                                             .foregroundStyle(Color.secondary)
                                     }
@@ -173,7 +173,7 @@ struct MediasView: View {
         case .artist:
             return collection.sorted(by: {($0.release?.artists.first?.name ?? "") < ($1.release?.artists.first?.name ?? "")})
         case .title:
-            return collection.sorted(by: {$0.release!.title < $1.release!.title})
+            return collection.sorted(by: {$0.release?.title ?? "" < $1.release?.title ?? ""})
         case .addedRecent:
             return collection.sorted(by: {$0.dateAdded > $1.dateAdded})
         case .addedOldest:
@@ -196,8 +196,8 @@ struct MediasView: View {
         else {
             let lowercasedSearchText = searchText.lowercased()
             filteredCollection = filteredCollection.filter { media in
-                media.release!.title.lowercased().contains(lowercasedSearchText) ||
-                media.release!.artists.contains(where: {$0.name?.lowercased().contains(lowercasedSearchText) ?? false}) ||
+                (media.release?.title?.lowercased() ?? "").contains(lowercasedSearchText) ||
+                (media.release?.artists ?? []).contains(where: {$0.name?.lowercased().contains(lowercasedSearchText) ?? false}) ||
                 media.mediaPreview.genre.contains(where: {$0.lowercased().contains(lowercasedSearchText)}) ||
                 media.mediaPreview.format.contains(where: {$0.lowercased().contains(lowercasedSearchText)})
             }

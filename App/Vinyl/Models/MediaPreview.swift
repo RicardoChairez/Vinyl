@@ -31,29 +31,23 @@ struct MediaPreview: Codable, Identifiable, Hashable {
 //        case coverImage = "cover_image"
 //    }
     
-    var id: Int
+    var id: Int?
     var country: String?
     var year: String?
-    var format: [String]
-    var formatSet: Set<String> {
-        Set(format)
-    }
-    var label: [String]
-    var genre: [String]
-    var genreSet: Set<String> {
-        Set(genre)
-    }
-    var style: [String]
+    var format: [String] = []
+    var label: [String] = []
+    var genre: [String] = []
+    var style: [String] = []
 //    var mediaID: Int
     var master_id: Int?
     var master_url: String?
     var resource_url: String?
-    var catno: String
-    var title: String
-    var thumb: String
-    var cover_image: String
+    var catno: String?
+    var title: String?
+    var thumb: String?
+    var cover_image: String?
     var thumbImageURL: URL? {
-        URL(string: thumb)
+        URL(string: thumb ?? "")
     }
 //    var coverImageURL: URL? {
 //        URL(string: cover_image)

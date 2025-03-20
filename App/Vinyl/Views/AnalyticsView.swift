@@ -165,19 +165,20 @@ struct AnalyticsView: View {
     func getFormatCounts() {
         formatCounts = [FormatCount(format: "Vinyl", count: 0), FormatCount(format: "CD", count: 0), FormatCount(format: "Cassette", count: 0), FormatCount(format: "DVD", count: 0), FormatCount(format: "File", count: 0)]
         for media in collection {
-            if media.mediaPreview.formatSet.contains("Vinyl"){
+            let formatSet = Set(media.mediaPreview.format)
+            if formatSet.contains("Vinyl"){
                 formatCounts[0].increment()
             }
-            else if media.mediaPreview.formatSet.contains("CD") || media.mediaPreview.formatSet.contains("CDr") {
+            else if formatSet.contains("CD") || formatSet.contains("CDr") {
                 formatCounts[1].increment()
             }
-            else if media.mediaPreview.formatSet.contains("Cassette") {
+            else if formatSet.contains("Cassette") {
                 formatCounts[2].increment()
             }
-            else if media.mediaPreview.formatSet.contains("DVD") {
+            else if formatSet.contains("DVD") {
                 formatCounts[3].increment()
             }
-            else if media.mediaPreview.format.contains("File") {
+            else if formatSet.contains("File") {
                 formatCounts[4].increment()
             }
         }
