@@ -38,7 +38,7 @@ struct Release: Codable, Identifiable, Hashable {
     var status: String?
     var year: Int?
 //    let resourceURL, uri: String?
-    let artists: [Artist]
+    var artists: [Artist]
 //    private let artists_sort: String?
     let labels: [Company]
     var label: String? { if !labels.isEmpty{ return labels[0].name} else { return nil }}
@@ -51,7 +51,7 @@ struct Release: Codable, Identifiable, Hashable {
 //    let lowestPrice: Double?
 //    let masterID: Int?
 //    let masterURL: String?
-    let title: String
+    var title: String
     let country, notes: String?
     let released_formatted: String?
 //    let releasedFormatted: String?

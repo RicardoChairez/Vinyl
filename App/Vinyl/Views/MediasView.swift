@@ -67,7 +67,6 @@ struct MediasView: View {
                                     .font(.footnote)
                                     .fontWeight(.medium)
                                     .lineLimit(1)
-                                    
                                 }
                             }
                         }
@@ -170,9 +169,9 @@ struct MediasView: View {
     func sortCollection(collection: [Media]) -> [Media] {
         switch sort {
         case .label:
-            return collection.sorted(by: {($0.release?.labels.first?.name ?? "") < ($1.release!.labels.first?.name ?? "")})
+            return collection.sorted(by: {($0.release?.labels.first?.name ?? "") < ($1.release?.labels.first?.name ?? "")})
         case .artist:
-            return collection.sorted(by: {($0.release?.artists.first?.name ?? "") < ($1.release!.artists.first?.name ?? "")})
+            return collection.sorted(by: {($0.release?.artists.first?.name ?? "") < ($1.release?.artists.first?.name ?? "")})
         case .title:
             return collection.sorted(by: {$0.release!.title < $1.release!.title})
         case .addedRecent:
@@ -182,9 +181,9 @@ struct MediasView: View {
         case .year:
             return collection.sorted(by: {$0.mediaPreview.year ?? "" < $1.mediaPreview.year ?? ""})
         case .valueHigh:
-            return collection.sorted(by: {$0.value ?? -1.0 > $1.value ?? -2.0})
+            return collection.sorted(by: {$0.value ?? -2.0 > $1.value ?? -1.0})
         case .valueLow:
-            return collection.sorted(by: {$0.value ?? -2.0 < $1.value ?? -1.0})
+            return collection.sorted(by: {$0.value ?? -1.0 < $1.value ?? -2.0})
         }
     }
     

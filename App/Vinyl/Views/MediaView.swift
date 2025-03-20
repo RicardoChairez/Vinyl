@@ -86,6 +86,7 @@ struct MediaView: View {
                                             
                                             if vm.media.ownership == .owned {
                                                 Text("\(vm.media.dateFormatted)")
+                                                    .foregroundStyle(.secondary)
                                             }
                                         }
                                         .font(.caption2)
