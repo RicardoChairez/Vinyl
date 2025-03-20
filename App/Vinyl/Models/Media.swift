@@ -20,7 +20,7 @@ class Media {
     init(mediaPreview: MediaPreview) {
         self.mediaPreview = mediaPreview
         self.coverImageData = nil
-        self.dateAdded = Date.randomBetween(start: Calendar.current.date(byAdding: .year, value: -1, to: Date())!, end: Date.now)
+        self.dateAdded = .now
         self.ownership = .unowned
         self.notes = ""
         self.customValueFlag = false

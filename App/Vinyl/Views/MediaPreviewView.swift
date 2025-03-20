@@ -20,7 +20,7 @@ struct MediaPreviewView: View {
                             .frame(width: 70, height: 70)
                     }
                     else {
-                        Color.secondary
+                    Color.offPrimary
                             .frame(width: 70, height: 70)
                     }
                     Text(mediaPreview.format.first ?? "")

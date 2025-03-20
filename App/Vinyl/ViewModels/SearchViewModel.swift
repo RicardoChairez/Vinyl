@@ -15,7 +15,7 @@ class SearchViewModel: ObservableObject {
     }
     
     @Published var searchResult: [MediaPreview] = []
-    @Published var searchText = "to pimp a butterfly"
+    @Published var searchText = ""
     @Published var isShowingScanner = false
     @Published var vmState: vmState = .notSearching
     

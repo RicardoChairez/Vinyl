@@ -15,9 +15,9 @@ struct AnalyticsView: View {
     @State var collectionValue: Double = 0
     @State var collection: [Media] = []
     @State var collectionStates: [CollectionState] = []
-    @State var formatCounts: [FormatCount] = [FormatCount(format: "Vinyl", count: 0), FormatCount(format: "CD", count: 0), FormatCount(format: "Cassette", count: 0), FormatCount(format: "DVD", count: 0), FormatCount(format: "File", count: 0)]
+    @State var formatChartData: [FormatCount] = [FormatCount(format: "Vinyl", count: 0), FormatCount(format: "CD", count: 0), FormatCount(format: "Cassette", count: 0), FormatCount(format: "DVD", count: 0), FormatCount(format: "File", count: 0)]
     @State var genreCountDict: [String: GenreCount] = [:]
-    @State var genreCounts: [GenreCount] = []
+    @State var genreChartData: [GenreCount] = []
     
     var body: some View {
         NavigationStack {
@@ -95,7 +95,7 @@ struct AnalyticsView: View {
                                 .fontWeight(.bold)
                                 .padding(.bottom, 10)
                             
-                            Chart(formatCounts, id: \.format) { item in
+                            Chart(formatChartData, id: \.format) { item in
                                 BarMark(x: .value("Format", item.format), y: .value("Count", item.count))
                                     .annotation {
                                         Text(String(item.count))
@@ -111,7 +111,7 @@ struct AnalyticsView: View {
                                 .fontWeight(.bold)
                                 .padding(.bottom, 10)
                             
-                            Chart(genreCounts, id: \.genre) { item in
+                            Chart(genreChartData, id: \.genre) { item in
                                 BarMark(x: .value("Genre", item.genre), y: .value("Count", item.count))
                                     .annotation {
                                         Text(String(item.count))
@@ -131,9 +131,7 @@ struct AnalyticsView: View {
             .navigationTitle("Analytics")
         }
         .onAppear {
-            withAnimation(Animation.linear) {
-                updateAnalytics()
-            }
+            updateAnalytics()
         }
         .modelContainer(for: Media.self)
     }
@@ -163,31 +161,31 @@ struct AnalyticsView: View {
     }
     
     func getFormatCounts() {
-        formatCounts = [FormatCount(format: "Vinyl", count: 0), FormatCount(format: "CD", count: 0), FormatCount(format: "Cassette", count: 0), FormatCount(format: "DVD", count: 0), FormatCount(format: "File", count: 0)]
+        formatChartData = [FormatCount(format: "Vinyl", count: 0), FormatCount(format: "CD", count: 0), FormatCount(format: "Cassette", count: 0), FormatCount(format: "DVD", count: 0), FormatCount(format: "File", count: 0)]
         for media in collection {
             let formatSet = Set(media.mediaPreview.format)
             if formatSet.contains("Vinyl"){
-                formatCounts[0].increment()
+                formatChartData[0].increment()
             }
             else if formatSet.contains("CD") || formatSet.contains("CDr") {
-                formatCounts[1].increment()
+                formatChartData[1].increment()
             }
             else if formatSet.contains("Cassette") {
-                formatCounts[2].increment()
+                formatChartData[2].increment()
             }
             else if formatSet.contains("DVD") {
-                formatCounts[3].increment()
+                formatChartData[3].increment()
             }
             else if formatSet.contains("File") {
-                formatCounts[4].increment()
+                formatChartData[4].increment()
             }
         }
-        formatCounts.sort(by: {$0.count > $1.count})
+        formatChartData.sort(by: {$0.count > $1.count})
     }
     
     func getGenreCounts() {
         genreCountDict = [:]
-        genreCounts = []
+        genreChartData = []
         
         for media in collection {
             let genreSet = Set(media.mediaPreview.genre)
@@ -200,7 +198,7 @@ struct AnalyticsView: View {
                 }
             }
         }
-        genreCounts = Array(genreCountDict.values).sorted(by: {$0.count > $1.count})
+        genreChartData = Array(genreCountDict.values).sorted(by: {$0.count > $1.count})
     }
 }
 

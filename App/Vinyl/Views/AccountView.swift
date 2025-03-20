@@ -8,14 +8,30 @@
 import SwiftUI
 
 struct AccountView: View {
+    @Environment(\.dismiss) private var dismiss
+    
     var body: some View {
         NavigationStack {
             List {
-                Section("Account") {
-                    Text("HI")
+                Section("FEEDBACK") {
+                    HStack {
+                        Image(systemName: "envelope")
+                        Button {
+                            
+                        } label: {
+                            Text("rdc257@nau.edu")
+                        }
+                        .tint(.blue)
+                    }
                 }
-                Section("HI") {
-                    
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        self.dismiss()
+                    } label: {
+                        Text("Done")
+                    }
                 }
             }
             .navigationTitle("Account")
