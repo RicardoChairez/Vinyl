@@ -10,7 +10,8 @@ import Drops
 
 struct Constants {
     struct api {
-        static let key = "key=ZUZzobEyTNvOTqHyJqWA&secret=URAFfBKBvzRlfReyStjLCqyXyQSbFQjc#"
+        static let key = "ZUZzobEyTNvOTqHyJqWA"
+        static let secret = "URAFfBKBvzRlfReyStjLCqyXyQSbFQjc#"
         static let loadMediaFailure = "Failed to load"
     }
     

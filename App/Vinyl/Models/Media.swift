@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 @Model
-class Media {
+final class Media: ObservableObject {
 //    init(mediaPreview: MediaPreview, coverImageData: Data?, ownership: Ownership) {
 //        self.mediaPreview = mediaPreview
 //        self.coverImageData = coverImageData

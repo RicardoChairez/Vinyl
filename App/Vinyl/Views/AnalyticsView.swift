@@ -133,7 +133,6 @@ struct AnalyticsView: View {
         .onAppear {
             updateAnalytics()
         }
-        .modelContainer(for: Media.self)
     }
     
     func updateAnalytics() {

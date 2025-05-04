@@ -19,15 +19,36 @@ class SearchViewModel: ObservableObject {
     @Published var isShowingScanner = false
     @Published var vmState: vmState = .notSearching
     
+    @Published var isShowingFilterSheet = false
+    @Published var selectedFormat: Format?
+    @Published var selectedYear: Int?
+    @Published var selectedCountry: String?
+    
     func fetchSearchResult() async throws -> [MediaPreview]{
-        let endpoint = getEndpoint(query: searchText)
-        let url = URL(string: endpoint)
+//        let endpoint = getEndpoint(query: searchText)
+        
+        let url = getURL(query: searchText)
         let mediaSearchResponse = try await NetworkManager.shared.request(modelType: MediaSearchResponse.self, url: url)
         return mediaSearchResponse.results
     }
     
-    func getEndpoint(query: String) -> String{
-        return "https://api.discogs.com/database/search?q=\(query)&type=release&\(Constants.api.key)"
+    func getURL(query: String) -> URL? {
+        var endpoint = "https://api.discogs.com/database/search?"
+        endpoint.append("q=\(query)")
+        endpoint.append("&type=release")
+        if let format = selectedFormat {
+            endpoint.append("&format=\(format.rawValue)")
+        }
+        if let year = selectedYear {
+            endpoint.append("&year=\(year)")
+        }
+        if let country = selectedCountry {
+            endpoint.append("&country=\(country)&country=\(Locale.current.localizedString(forRegionCode: country) ?? country)")
+        }
+        endpoint.append("&key=\(Constants.api.key)")
+        endpoint.append("&secret=\(Constants.api.secret)")
+        print(endpoint)
+        return URL(string: endpoint)
     }
     
     func downloadImages() async {

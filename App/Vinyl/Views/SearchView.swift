@@ -48,11 +48,18 @@ struct SearchView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        vm.isShowingScanner = true
-                    } label: {
-                        Image(systemName: "barcode.viewfinder")
-                            .scaledToFit()
+                    HStack {
+                        Button {
+                            vm.isShowingScanner = true
+                        } label: {
+                            Image(systemName: "barcode.viewfinder")
+                                .scaledToFit()
+                        }
+                        Button {
+                            vm.isShowingFilterSheet = true
+                        } label: {
+                            Image(systemName: "slider.horizontal.3")
+                        }
                     }
                 }
             }
@@ -73,6 +80,49 @@ struct SearchView: View {
                     .presentationDetents([.medium])
                 }
             }
+            .sheet(isPresented: $vm.isShowingFilterSheet) {
+                NavigationStack {
+                    Form {
+                        Section(header: Text("Format")) {
+                            Picker("Format", selection: $vm.selectedFormat) {
+                                Text("Any").tag(Optional<Format>.none)
+                                ForEach(Format.allCases) { format in
+                                    Text(format.rawValue).tag(Optional(format))
+                                }
+                            }
+                            .pickerStyle(MenuPickerStyle())
+                        }
+                        
+                        Section(header: Text("Year")) {
+                            Picker("Year", selection: $vm.selectedYear) {
+                                Text("Any").tag(Optional<Int>.none)
+                                ForEach((1900...2025).reversed(), id: \.self) { year in
+                                    Text(String(year)).tag(Optional(year))
+                                }
+                            }
+                        }
+                        
+                        Section(header: Text("Country")) {
+                            Picker("Country", selection: $vm.selectedCountry) {
+                                Text("Any").tag(Optional<String>.none)
+                                ForEach(NSLocale.isoCountryCodes, id: \.self) { code in
+                                    let name = Locale.current.localizedString(forRegionCode: code) ?? code
+                                    Text(name).tag(Optional(code))
+                                }
+                            }
+                        }
+                    }
+//                    .navigationTitle("Filters")
+                    .toolbar {
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("Done") {
+                                vm.isShowingFilterSheet = false
+                            }
+                        }
+                    }
+                }
+            }
+
         }
     }
     

@@ -132,7 +132,6 @@ struct MediasView: View {
                 }
             }
         }
-        .modelContainer(for: Media.self)
     }
     
     func removeFromCollection(media: Media) {

@@ -31,7 +31,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		45B6B34B2D7106C500E62B2E /* Vinyl.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Vinyl.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		45B6B34B2D7106C500E62B2E /* Music Collection.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Music Collection.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		45B6B35D2D7106DF00E62B2E /* VinylTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VinylTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		45B6B3672D7106DF00E62B2E /* VinylUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VinylUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -117,7 +117,7 @@
 		45B6B34C2D7106C500E62B2E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				45B6B34B2D7106C500E62B2E /* Vinyl.app */,
+				45B6B34B2D7106C500E62B2E /* Music Collection.app */,
 				45B6B35D2D7106DF00E62B2E /* VinylTests.xctest */,
 				45B6B3672D7106DF00E62B2E /* VinylUITests.xctest */,
 			);
@@ -150,7 +150,7 @@
 				451E12EB2D8214B600FFA4DE /* SwiftSoup */,
 			);
 			productName = Vinyl;
-			productReference = 45B6B34B2D7106C500E62B2E /* Vinyl.app */;
+			productReference = 45B6B34B2D7106C500E62B2E /* Music Collection.app */;
 			productType = "com.apple.product-type.application";
 		};
 		45B6B35C2D7106DE00E62B2E /* VinylTests */ = {
@@ -456,7 +456,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ricardochairez.Vinyl;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Music Collection";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -491,7 +491,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ricardochairez.Vinyl;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Music Collection";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;

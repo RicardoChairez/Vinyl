@@ -33,8 +33,8 @@ class MediaViewModel: ObservableObject {
         return release
     }
     
-    func fetchOtherVersions(query: String) async -> [MediaPreview]{
-        if !otherVersions.isEmpty { return otherVersions }
+    func fetchOtherVersions() async -> [MediaPreview]{
+        guard let query = media.mediaPreview.title, otherVersions.isEmpty else { return otherVersions }
         let endpoint = getEndpoint(query: query)
         let url = URL(string: endpoint)
         let mediaSearchResponse = try? await NetworkManager.shared.request(modelType: MediaSearchResponse.self, url: url)
@@ -46,7 +46,7 @@ class MediaViewModel: ObservableObject {
     }
     
     func getEndpoint(query: String) -> String{
-        return "https://api.discogs.com/database/search?q=\(query)&type=release&per_page=20&\(Constants.api.key)"
+        return "https://api.discogs.com/database/search?q=\(query)&type=release&per_page=20&key=\(Constants.api.key)&secret=\(Constants.api.secret)"
     }
     
     func getOtherVersionsImageData() async {

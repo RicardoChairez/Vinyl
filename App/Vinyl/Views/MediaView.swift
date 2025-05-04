@@ -258,11 +258,9 @@ struct MediaView: View {
             } message: {
                 Text("Are you sure you want to remove?")
             }
-            .sheet(isPresented: $vm.editIsPresented, onDismiss: {
-                update()
-            }, content: {
+            .sheet(isPresented: $vm.editIsPresented) {
                 EditMediaView(media: $vm.media)
-            })
+            }
             .toolbar(content: {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu{
@@ -339,7 +337,6 @@ struct MediaView: View {
                     .disabled(vm.media.release == nil)
                 }
             })
-            .modelContainer(for: Media.self)
         }
         .onAppear {
             if !vm.viewDidLoad {
@@ -353,11 +350,11 @@ struct MediaView: View {
     
     func getData() async {
         async let release = vm.fetchRelease()
-        async let otherVersion = vm.fetchOtherVersions(query: vm.media.mediaPreview.title ?? "")
+        async let otherVersions = vm.fetchOtherVersions()
         async let coverImageData = vm.fetchCoverImageData()
         
         do {
-            let (fetchedRelease, fetchedOtherVersions, fetchedCoverImageData) = try await (release, otherVersion, coverImageData)
+            let (fetchedRelease, fetchedOtherVersions, fetchedCoverImageData) = try await (release, otherVersions, coverImageData)
             
             vm.media.release = fetchedRelease
             vm.otherVersions = fetchedOtherVersions
@@ -380,33 +377,35 @@ struct MediaView: View {
     }
     
     func save(ownership: Ownership) {
-        let previousOwnership = vm.media.ownership
+//        let previousOwnership = vm.media.ownership
+        vm.media.ownership = ownership
+        modelContext.insert(vm.media)
         do {
             Drops.hideAll()
-            vm.media.ownership = ownership
+//            vm.media.ownership = ownership
             modelContext.insert(vm.media)
             try modelContext.save()
-            syncMediaWithStoredModel()
+//            syncMediaWithStoredModel()
             let drop = Drop(title: "Successfully added", titleNumberOfLines: 1, subtitle: nil, subtitleNumberOfLines: 0, icon: UIImage(systemName: "checkmark"))
             Drops.show(drop)
         }
         catch {
-            vm.media.ownership = previousOwnership
-            print(error.localizedDescription)
+//            vm.media.ownership = previousOwnership
+//            print(error.localizedDescription)
             let drop = Drop(title: Constants.drop.addToCollectionFailure, titleNumberOfLines: 1, subtitle: error.localizedDescription, subtitleNumberOfLines: 2, icon: UIImage(systemName: "xmark"))
             Drops.show(drop)
         }
     }
     
     func update() {
-        do {
-            Drops.hideAll()
+//        do {
+//            Drops.hideAll()
             modelContext.insert(vm.media)
-            try modelContext.save()
-        }
-        catch {
-            print(error.localizedDescription)
-        }
+//            try modelContext.save()
+//        }
+//        catch {
+//            print(error.localizedDescription)
+//        }
     }
     
     
