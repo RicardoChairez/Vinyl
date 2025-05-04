@@ -31,6 +31,9 @@ struct MediasView: View {
     @State var albumCount: Int = 0
     @State var collectionValue: Double = 0.0
     
+    @State var exportURL: URL?
+    @State var showExporterSheet = false
+    
     let ownership: Ownership
     let title: String
     var filteredCollection: [Media] { filterCollection() }
@@ -117,17 +120,40 @@ struct MediasView: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Menu {
-                        Picker(selection: $sort) {
-                            ForEach(Sort.allCases, id: \.self) { sort in
-                                Text(sort.localizedName)
-                                    .tag(sort)
+                    HStack {
+                        Menu {
+                            Picker(selection: $sort) {
+                                ForEach(Sort.allCases, id: \.self) { sort in
+                                    Text(sort.localizedName)
+                                        .tag(sort)
+                                }
+                            } label: {
+                                
                             }
                         } label: {
-                            
+                            Image(systemName: "arrow.up.arrow.down")
                         }
-                    } label: {
-                        Image(systemName: "arrow.up.arrow.down")
+                        
+                        Menu {
+                            ShareLink(item:generateCSV()) {
+                                Label("Share", systemImage: "square.and.arrow.up")
+                            }
+//                            Button {
+//                                let csvString = exportToCSV(mediaCollection: filteredCollection)
+//                                
+//                                if let url = saveCSVToTempFile(csvString: csvString) {
+//                                    exportURL = url
+//                                    showExporterSheet = true
+//                                }
+//                            } label: {
+//                                HStack {
+//                                    Text("Export to CSV")
+//                                    Image(systemName: "doc.text")
+//                                }
+//                            }
+                        } label: {
+                            Image(systemName: "ellipsis.circle.fill")
+                        }
                     }
                 }
             }
@@ -202,6 +228,50 @@ struct MediasView: View {
             }
         }
         return filteredCollection
+    }
+    
+    func generateCSV() -> URL {
+        let csvString = exportToCSV(mediaCollection: filteredCollection)
+        let fileName = "Music Collection.csv"
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+        do {
+            try csvString.write(to: url, atomically: true, encoding: .utf8)
+        } catch {
+            print(error.localizedDescription)
+//            let drop = Drop(title: "Failed to generate CSV file",  icon: UIImage(systemName: "xmark"))
+//            Drops.show(drop)
+        }
+        return url
+    }
+    
+    func exportToCSV(mediaCollection: [Media]) -> String {
+        var csv = "Title,Artist,Format,Year,Country,Genre,Style,Label,Cat No.,Description,Value,Date Added,Notes\n"
+        
+        for media in mediaCollection {
+            let preview = media.mediaPreview
+            let release = media.release
+            
+            let title = release?.title ?? preview.title ?? ""
+            let artist = release?.artists.first?.name ?? ""
+            let label = preview.label.joined(separator: " / ").replacingOccurrences(of: ",", with: " ")
+            let format = preview.format.joined(separator: " / ").replacingOccurrences(of: ",", with: " ")
+            let year = preview.year ?? (release?.year != nil ? String(release!.year!) : "")
+            let country = preview.country ?? release?.country ?? ""
+            let genre = preview.genre.joined(separator: " / ").replacingOccurrences(of: ",", with: " ")
+            let style = preview.style.joined(separator: " / ").replacingOccurrences(of: ",", with: " ")
+            let catno = preview.catno ?? release?.labels.first?.catno ?? ""
+            let value = media.value != nil ? "\(media.value!)" : ""
+            let description = (media.notes + (release?.notes ?? "")).replacingOccurrences(of: ",", with: " ")
+            let dateAdded = media.dateFormatted
+            let notes = media.notes
+            
+            let row = [title, artist, format, year, country, genre, style, label, catno, description, value, dateAdded, notes]
+                .map { "\"\($0)\"" } // wrap fields in quotes
+                .joined(separator: ",")
+            
+            csv.append(row + "\n")
+        }
+        return csv
     }
 }
 

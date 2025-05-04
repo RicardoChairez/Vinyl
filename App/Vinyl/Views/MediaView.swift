@@ -320,18 +320,19 @@ struct MediaView: View {
                         }
                         
                     } label: {
-                        Button {
-                            
-                        } label: {
-                            Image(systemName: "ellipsis")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 13, height: 13)
-                        }
-                        .foregroundStyle(Color.primary)
-                        .buttonStyle(.borderedProminent)
-                        .buttonBorderShape(.circle)
-                        .tint(.offPrimary)
+                        Image(systemName: "ellipsis.circle.fill")
+//                        Button {
+//                            
+//                        } label: {
+//                            Image(systemName: "ellipsis")
+//                                .resizable()
+//                                .scaledToFit()
+//                                .frame(width: 13, height: 13)
+//                        }
+//                        .foregroundStyle(Color.primary)
+//                        .buttonStyle(.borderedProminent)
+//                        .buttonBorderShape(.circle)
+//                        .tint(.offPrimary)
                         
                     }
                     .disabled(vm.media.release == nil)
