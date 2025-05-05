@@ -47,7 +47,6 @@ class SearchViewModel: ObservableObject {
         }
         endpoint.append("&key=\(Constants.api.key)")
         endpoint.append("&secret=\(Constants.api.secret)")
-        print(endpoint)
         return URL(string: endpoint)
     }
     

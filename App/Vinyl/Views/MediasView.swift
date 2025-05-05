@@ -138,19 +138,6 @@ struct MediasView: View {
                             ShareLink(item:generateCSV()) {
                                 Label("Share", systemImage: "square.and.arrow.up")
                             }
-//                            Button {
-//                                let csvString = exportToCSV(mediaCollection: filteredCollection)
-//                                
-//                                if let url = saveCSVToTempFile(csvString: csvString) {
-//                                    exportURL = url
-//                                    showExporterSheet = true
-//                                }
-//                            } label: {
-//                                HStack {
-//                                    Text("Export to CSV")
-//                                    Image(systemName: "doc.text")
-//                                }
-//                            }
                         } label: {
                             Image(systemName: "ellipsis.circle.fill")
                         }
@@ -232,7 +219,13 @@ struct MediasView: View {
     
     func generateCSV() -> URL {
         let csvString = exportToCSV(mediaCollection: filteredCollection)
-        let fileName = "Music Collection.csv"
+        let fileName: String
+        if ownership == .owned {
+            fileName = "Music Collection.csv"
+        }
+        else {
+            fileName = "Music Wantlist.csv"
+        }
         let url = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
         do {
             try csvString.write(to: url, atomically: true, encoding: .utf8)
@@ -245,9 +238,9 @@ struct MediasView: View {
     }
     
     func exportToCSV(mediaCollection: [Media]) -> String {
-        var csv = "Title,Artist,Format,Year,Country,Genre,Style,Label,Cat No.,Description,Value,Date Added,Notes\n"
+        var csv = "Title,Artist,Format,Release Date,Country,Genre,Style,Label,Cat No.,Description,Value,Date Added,Notes\n"
         
-        for media in mediaCollection {
+        for media in filteredCollection {
             let preview = media.mediaPreview
             let release = media.release
             
@@ -255,7 +248,7 @@ struct MediasView: View {
             let artist = release?.artists.first?.name ?? ""
             let label = preview.label.joined(separator: " / ").replacingOccurrences(of: ",", with: " ")
             let format = preview.format.joined(separator: " / ").replacingOccurrences(of: ",", with: " ")
-            let year = preview.year ?? (release?.year != nil ? String(release!.year!) : "")
+            let releaseDate = release?.released_formatted ?? (release?.year != nil ? String(release!.year!) : "")
             let country = preview.country ?? release?.country ?? ""
             let genre = preview.genre.joined(separator: " / ").replacingOccurrences(of: ",", with: " ")
             let style = preview.style.joined(separator: " / ").replacingOccurrences(of: ",", with: " ")
@@ -265,7 +258,7 @@ struct MediasView: View {
             let dateAdded = media.dateFormatted
             let notes = media.notes
             
-            let row = [title, artist, format, year, country, genre, style, label, catno, description, value, dateAdded, notes]
+            let row = [title, artist, format, releaseDate, country, genre, style, label, catno, description, value, dateAdded, notes]
                 .map { "\"\($0)\"" } // wrap fields in quotes
                 .joined(separator: ",")
             
