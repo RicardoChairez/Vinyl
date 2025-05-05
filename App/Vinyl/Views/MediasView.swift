@@ -218,7 +218,7 @@ struct MediasView: View {
     }
     
     func generateCSV() -> URL {
-        let csvString = exportToCSV(mediaCollection: filteredCollection)
+        let csvString = generateCSVString()
         let fileName: String
         if ownership == .owned {
             fileName = "Music Collection.csv"
@@ -237,7 +237,7 @@ struct MediasView: View {
         return url
     }
     
-    func exportToCSV(mediaCollection: [Media]) -> String {
+    func generateCSVString() -> String {
         var csv = "Title,Artist,Format,Release Date,Country,Genre,Style,Label,Cat No.,Description,Value,Date Added,Notes\n"
         
         for media in filteredCollection {
