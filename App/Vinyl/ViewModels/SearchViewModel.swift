@@ -11,13 +11,13 @@ import SwiftData
 @MainActor
 class SearchViewModel: ObservableObject {
     enum vmState {
-        case notSearching, searching
+        case foundResults, searching, noResults
     }
     
     @Published var searchResult: [MediaPreview] = []
     @Published var searchText = ""
     @Published var isShowingScanner = false
-    @Published var vmState: vmState = .notSearching
+    @Published var vmState: vmState = .foundResults
     
     @Published var isShowingFilterSheet = false
     @Published var selectedFormat: Format?

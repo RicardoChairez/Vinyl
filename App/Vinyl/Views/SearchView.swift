@@ -21,7 +21,7 @@ struct SearchView: View {
                     ProgressView()
                         .ignoresSafeArea(.keyboard)
                 }
-                else {
+                else if vm.vmState == .foundResults{
                     ScrollView {
                         VStack {
                             ForEach($vm.searchResult) { $mediaPreview in
@@ -31,6 +31,11 @@ struct SearchView: View {
                             }
                         }
                     }
+                }
+                else {
+                    Text("No Results")
+                        .font(.title)
+                        .fontWeight(.bold)
                 }
             }
             .edgesIgnoringSafeArea(.horizontal)
@@ -129,16 +134,22 @@ struct SearchView: View {
     func search() async {
         vm.setState(state: .searching)
         async let searchResult = vm.fetchSearchResult()
-        
         do {
             let (fetchedSearchResult) = try await (searchResult)
             vm.searchResult = fetchedSearchResult
         }
         catch {
+            vm.setState(state: .noResults)
             showErrorDrop(error: error)
+            return
+        }
+        if vm.searchResult.isEmpty {
+            vm.setState(state: .noResults)
+        }
+        else {
+            vm.setState(state: .foundResults)
         }
         
-        vm.setState(state: .notSearching)
         await vm.downloadImages()
     }
     
